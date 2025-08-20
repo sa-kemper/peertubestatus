@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/sa-kemper/golangGetTextTest/internal/LogHelp"
 	"github.com/sa-kemper/golangGetTextTest/internal/Response"
 )
 
@@ -19,6 +20,7 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
 	server := http.Server{
 		Addr:                         config.BindAddress,
 		Handler:                      nil,
@@ -44,9 +46,9 @@ func main() {
 		http.HandleFunc(path, function)
 	}
 
-	fmt.Println(staticFS.ReadDir("assets/css"))
+	if LogHelp.PrintableLogLevel >= 3 {
 
-	fmt.Print(`|                           _____                                                   
+		fmt.Print(`|                           _____                                                   
 |                          / ____|						             |                         
 |                         | |  __  ___						         |                         
 |                         | | |_ |/ _ \						         |                        
@@ -63,7 +65,8 @@ func main() {
 |                            | |  __/\__ \ |_				         |		                  
 |                            |_|\___||___/\__|				         |		                 
                                    `)
-	fmt.Printf("\nListening on http://%s\n", config.BindAddress)
+		fmt.Printf("\nListening on http://%s\n", config.BindAddress)
+	}
 	err := server.ListenAndServe()
 	if err != nil {
 		fmt.Println("err")
