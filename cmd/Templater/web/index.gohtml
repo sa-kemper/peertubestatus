@@ -1,0 +1,163 @@
+{{define "index"}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Translation Test Project Demo</title>
+        <link rel="stylesheet" href="/static/css/style.css">
+    </head>
+    <body>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle">Toggle Theme</button>
+
+    <!-- Hero Section -->
+    <header>
+        <div class="icon icon-html"></div>
+        <h1>Welcome to Translation Test Project</h1>
+        <p>A fresh demo showcasing seamless translations powered by pure HTML, CSS, and Golang.</p>
+    </header>
+
+    <!-- Benefits Section 1: Introduction to Benefits -->
+    <section class="benefits animate-fade">
+        <h2 class="animate-slide">Why Use Pure HTML, CSS, and Golang?</h2>
+        <p>This project demonstrates the power of simplicity in web development. By leveraging pure HTML for structure, CSS for styling and animations, and Golang for backend efficiency, we achieve a clean, fast, and secure application without unnecessary bloat.</p>
+
+        <div class="benefit-item">
+            <div class="icon icon-simple"></div>
+            <div>
+                <h2>Simplicity and Maintainability</h2>
+                <p>HTML provides a straightforward way to build the skeleton of your web pages. Combined with CSS, you can create visually appealing designs without complex frameworks. Golang's concise syntax ensures that your server-side code is easy to read and maintain, reducing development time and errors.</p>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="icon icon-fast"></div>
+            <div>
+                <h2>Performance and Speed</h2>
+                <p>Pure HTML and CSS load quickly without the overhead of JavaScript libraries. Golang compiles to machine code, offering blazing-fast execution for handling translations and API requests. This results in a responsive user experience, even under high load.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extended Section 2: More Benefits with Grid -->
+    <section class="section-gradient animate-fade">
+        <h2 class="animate-slide">Deeper Dive into Benefits</h2>
+        <p>Explore how this stack enhances translation projects. From efficient data handling to beautiful UI, everything is optimized.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon icon-secure"></div>
+                <h3>Security First</h3>
+                <p>Golang's strong typing and built-in security features protect against common vulnerabilities. HTML and CSS, being declarative, minimize attack surfaces compared to dynamic scripts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-go"></div>
+                <h3>Scalability with Golang</h3>
+                <p>Golang's concurrency model using goroutines allows handling multiple translation requests simultaneously, making it ideal for scalable applications.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-css"></div>
+                <h3>Stunning Visuals with CSS</h3>
+                <p>Create gradients, animations, and responsive designs purely with CSS. No need for heavy libraries—keep it lightweight and green-themed!</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-html"></div>
+                <h3>Accessibility in HTML</h3>
+                <p>Semantic HTML ensures your site is accessible to all users, including those using screen readers, while supporting easy internationalization for translations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extended Section 3: Placeholder Text and More Details -->
+    <section class="benefits animate-fade">
+        <h2 class="animate-slide">Additional Advantages</h2>
+        <p>Continuing our exploration, let's look at long-term benefits. This approach not only saves resources but also future-proofs your project.</p>
+
+        <div class="benefit-item">
+            <div class="icon icon-simple"></div>
+            <div>
+                <h2>Cost-Effectiveness</h2>
+                <p>Avoid licensing fees and dependencies on third-party frameworks. Pure HTML, CSS, and Golang are free and open-source, reducing overall project costs while delivering high-quality results.</p>
+                <p>Furthermore, the minimalistic design means fewer bugs and easier debugging. Developers can focus on core features like accurate translations rather than managing complex ecosystems.</p>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="icon icon-fast"></div>
+            <div>
+                <h2>Cross-Platform Compatibility</h2>
+                <p>HTML and CSS work seamlessly across all browsers and devices. Golang binaries can run on any platform without modification, ensuring your translation service is universally accessible .</p>
+                <p>In addition, this stack supports easy integration with databases and APIs, allowing for robust backend support in handling multilingual content efficiently.</p>
+            </div>
+        </div>
+
+        <div class="benefit-item">
+            <div class="icon icon-secure"></div>
+            <div>
+                <h2>Community and Support</h2>
+                <p>The communities around HTML/CSS standards and Golang are vibrant and helpful. Resources abound for troubleshooting, best practices, and innovations in web development and backend services.</p>
+                <p>This fosters continuous improvement, ensuring your translation test project stays cutting-edge without reinventing the wheel.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Even More Content to Ensure Length -->
+    <section class="section-gradient animate-fade">
+        <h2 class="animate-slide">Real-World Applications</h2>
+        <p>In practice, using pure HTML, CSS, and Golang for translation projects offers unparalleled flexibility. Here's more on how it shines in various scenarios.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon icon-go"></div>
+                <h3>E-Commerce Translations</h3>
+                <p>Quickly translate product descriptions with Golang's speed, styled beautifully with CSS gradients for an engaging shopping experience.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-css"></div>
+                <h3>Educational Platforms</h3>
+                <p>Deliver multilingual courses with clean HTML structures, animated transitions for better user engagement, all backed by efficient Golang servers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-html"></div>
+                <h3>Global News Sites</h3>
+                <p>Real-time translations powered by Golang, presented in a fresh, green-themed interface that's easy to navigate and visually appealing.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon icon-secure"></div>
+                <h3>Secure Data Handling</h3>
+                <p>Ensure sensitive translation data is handled securely with Golang's robust features, while the frontend remains lightweight and secure.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Translation Test Project. Built with Pure HTML, CSS, and Golang.</p>
+    </footer>
+
+    <!-- JavaScript for Theme Toggle -->
+    <script>
+        const body = document.body;
+        const toggleButton = document.getElementById('theme-toggle');
+
+        // Respect system preference initially
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            body.setAttribute('data-theme', 'dark');
+        }
+
+        // Toggle on button click
+        toggleButton.addEventListener('click', () => {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', "light");
+            } else {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        });
+    </script>
+
+    </body>
+    </html>
+
+{{end}}
