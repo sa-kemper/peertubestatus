@@ -1,0 +1,197 @@
+/* Define Color Variables First */
+:root {
+    --bg-color: #f0f8f5; /* Light green background */
+    --text-color: #333;
+    --primary-green: #4CAF50;
+    --dark-green: #388E3C;
+    --light-green: #81C784;
+    --gradient-green: linear-gradient(135deg, #66BB6A, #43A047);
+    --section-bg: white;
+    --shadow-color: rgba(0,0,0,0.1);
+    --footer-bg: var(--dark-green);
+    --footer-text: white;
+    --header-text: white;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --primary-green: #66BB6A; /* Lighter green for contrast */
+    --dark-green: #2E7D32;
+    --light-green: #A5D6A7;
+    --gradient-green: linear-gradient(135deg, #388E3C, #1B5E20);
+    --section-bg: #1e1e1e;
+    --shadow-color: rgba(255,255,255,0.1);
+    --footer-bg: #0a0a0a;
+    --footer-text: #e0e0e0;
+    --header-text: #e0e0e0;
+}
+
+/* Now Set Element Colors Based on Vars */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header/Hero Section */
+header {
+    background: var(--gradient-green);
+    color: var(--header-text);
+    text-align: center;
+    padding: 150px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+header h1 {
+    font-size: 3em;
+    margin: 0;
+    animation: fadeIn 1.5s ease-out;
+}
+
+header p {
+    font-size: 1.5em;
+    margin: 20px 0;
+    animation: fadeIn 2s ease-out;
+}
+
+header .icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+/* Sections */
+section {
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefits {
+    background-color: var(--section-bg);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    border-radius: 10px;
+    margin: 40px 0;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    margin: 40px 0;
+    animation: slideInLeft 1.2s ease-out;
+}
+
+.benefit-item .icon {
+    font-size: 3em;
+    color: var(--primary-green);
+    margin-right: 20px;
+}
+
+.benefit-item h2 {
+    color: var(--dark-green);
+}
+
+/* Section Gradient */
+.section-gradient {
+    background: var(--gradient-green);
+    color: var(--header-text);
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
+    background: var(--section-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    text-align: center;
+    animation: fadeIn 1.5s ease-out;
+}
+
+.feature-card .icon {
+    font-size: 2.5em;
+    color: var(--light-green);
+    margin-bottom: 10px;
+}
+
+/* Footer */
+footer {
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    text-align: center;
+    padding: 40px 20px;
+}
+
+/* Theme Toggle Button */
+#theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--primary-green);
+    color: var(--header-text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000 ;
+}
+
+#theme-toggle:hover {
+    background: var(--dark-green);
+}
+
+/* Animations (unchanged) */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.animate-fade { animation: fadeIn 1s ease-out; }
+.animate-slide { animation: slideInLeft 1s ease-out; }
+.animate-pulse { animation: pulse 2s infinite; }
+
+/* Icons: Using Unicode for simplicity */
+.icon-html::before { content: "\1F4BB"; } /* Laptop */
+.icon-css::before { content: "\1F3A8"; } /* Artist palette */
+.icon-go::before { content: "\1F310"; } /* Globe */
+.icon-secure::before { content: "\1F512"; } /* Lock */
+.icon-fast::before { content: "\1F680"; } /* Rocket */
+.icon-simple::before { content: "\1F4D6"; } /* Open book */
+
+/* Media Query for System Dark Mode Preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg-color: #121212;
+        --text-color: #e0e0e0;
+        --primary-green: #66BB6A;
+        --dark-green: #2E7D32;
+        --light-green: #A5D6A7;
+        --gradient-green: linear-gradient(135deg, #388E3C, #1B5E20);
+        --section-bg: #1e1e1e;
+        --shadow-color: rgba(255,255,255,0.1);
+        --footer-bg: #0a0a0a;
+        --footer-text: #e0e0e0;
+        --header-text: #e0e0e0;
+    }
+}
