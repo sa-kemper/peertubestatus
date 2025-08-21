@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"time"
 )
 
 // AlwaysQueue Is a flag to be set if a alternative log delivery system shall be used.
 var AlwaysQueue = false
+var AlternativeWriter *io.Writer
 var PrintableLogLevel LogLevelID
 
 func init() {
@@ -56,6 +58,21 @@ func (e LogEntry) String() string {
 		log.Fatal("FATAL; CANNOT RETURN LOG ENTRY", err)
 	}
 	return string(str)
+}
+
+func (e LogEntry) Log() {
+	if AlternativeWriter != nil {
+		written, err := io.WriteString(*AlternativeWriter, e.String())
+		if err != nil {
+			log.Fatal("FATAL; CANNOT WRITE LOG ENTRY", err, e)
+		}
+		if written < 5 {
+			log.Fatal("writing the log has failed without error,", e.String(), written)
+		}
+	}
+	if e.LogLevelInt >= PrintableLogLevel {
+		log.Println(e.String())
+	}
 }
 
 const (
