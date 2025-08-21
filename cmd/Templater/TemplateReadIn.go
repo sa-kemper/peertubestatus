@@ -1,14 +1,13 @@
 package main
 
 import (
-	"embed"
 	"html/template"
 	"log"
 	"os"
+
+	"github.com/sa-kemper/golangGetTextTest/web"
 )
 
-//go:embed web
-var templatesFS embed.FS
 var Templates *template.Template
 
 func init() {
@@ -17,7 +16,7 @@ func init() {
 		Templates = template.Must(template.ParseGlob("TemplateOverride/*.gohtml"))
 		return
 	}
-	Templates = template.Must(template.ParseFS(templatesFS, "web/*.gohtml"))
+	Templates = template.Must(template.ParseFS(web.TemplateFilesFS, "*.gohtml"))
 
 	if Templates == nil {
 		log.Fatal("Templates not found")

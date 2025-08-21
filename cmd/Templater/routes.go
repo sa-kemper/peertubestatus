@@ -1,20 +1,16 @@
 package main
 
 import (
-	"embed"
-	"io/fs"
 	"net/http"
-)
 
-//go:embed assets/css
-var staticFS embed.FS
-var staticFolder, _ = fs.Sub(staticFS, "assets")
+	"github.com/sa-kemper/golangGetTextTest/web"
+)
 
 var routingTable = map[string]func(http.ResponseWriter, *http.Request){
 	"/":        indexResponse,
-	"/static/": http.StripPrefix("/static", http.FileServerFS(staticFolder)).ServeHTTP,
+	"/static/": http.StripPrefix("/static", http.FileServerFS(web.CssFileFS)).ServeHTTP,
 }
 
 func indexResponse(writer http.ResponseWriter, request *http.Request) {
-	HandleUtility.ReplyTemplate(writer, request, "HelloError")
+	HandleUtility.ReplyTemplate(writer, request, "index")
 }
