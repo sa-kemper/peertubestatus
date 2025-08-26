@@ -21,6 +21,10 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	allowedProtocols := new(http.Protocols)
+	allowedProtocols.SetHTTP1(false)
+	allowedProtocols.SetHTTP2(true)
 	server := http.Server{
 		Addr:                         config.BindAddress,
 		Handler:                      nil,
@@ -36,7 +40,7 @@ func main() {
 		ErrorLog:                     log.Default(),
 		BaseContext:                  nil,
 		ConnContext:                  nil,
-		Protocols:                    nil,
+		Protocols:                    allowedProtocols,
 	}
 	HandleUtility = &Response.Utility{
 		Template: Templates,
