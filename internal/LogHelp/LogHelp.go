@@ -71,7 +71,7 @@ func (e LogEntry) Log() {
 		}
 	}
 	if e.LogLevelInt >= PrintableLogLevel {
-		log.Println(e.String())
+		println(e.String())
 	}
 }
 
@@ -98,4 +98,22 @@ func NewLog(id LogLevelID, msg string, ctx interface{}) *LogEntry {
 		LogQueue <- le
 	}
 	return le
+}
+
+func LogOnError(msg string, ctx interface{}, err error) {
+	if err == nil {
+		return
+	}
+	if ctx == nil {
+		NewLog(Error, msg, map[string]interface{}{"error": err}).Log()
+		return
+	}
+	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err}).Log()
+}
+
+func LogOnWarn(msg string, ctx interface{}, err error) {
+	if err == nil {
+		return
+	}
+	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err}).Log()
 }
