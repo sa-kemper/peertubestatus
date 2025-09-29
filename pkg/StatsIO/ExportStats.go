@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func ExportStats(videoID int64, Dates timeframe, Timeframe string) (Bucket []VideoStat, err error) {
+func ExportStats(videoID int64, Dates Timeframe, Timeframe string) (Bucket []VideoStat, err error) {
 	var dateVals = []int{0, 0, 0}
 	if Timeframe != "Daily" && Timeframe != "Monthly" && Timeframe != "Yearly" {
 		Timeframe = "Daily"
