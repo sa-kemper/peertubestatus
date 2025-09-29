@@ -1,37 +1,71 @@
 package Response
 
 import (
-	"html/template"
-	"log"
-	"maps"
+	"errors"
 	"net/http"
-	"slices"
 
-	"github.com/sa-kemper/golangGetTextTest/i18n"
-	"github.com/sa-kemper/golangGetTextTest/internal/LogHelp"
+	"github.com/sa-kemper/peertubestats/i18n"
+	"github.com/sa-kemper/peertubestats/internal/LogHelp"
+	"github.com/sa-kemper/peertubestats/web"
+	"golang.org/x/text/language"
 )
 
 func (u *Utility) ReplyTemplate(writer http.ResponseWriter, request *http.Request, templateName string) {
-	TranslatedTemplate := u.Template.Funcs(template.FuncMap{
-		"translate": func(text string) string {
-			lang, ok := i18n.Languages[request.Header.Get("Accept-Language")[0:2]]
-			if !ok {
-				log.Println(LogHelp.NewLog(LogHelp.Warn, "Accept-Language is not supported", struct {
-					RequestedLang string   `json:"requested_lang"`
-					AvailableLang []string `json:"available_lang"`
-				}{
-					RequestedLang: request.Header.Get("Accept-Language")[0:2],
-					AvailableLang: slices.Sorted(maps.Keys(i18n.Languages)),
-				}))
-			}
-			return lang.Get(text)
-		},
-	})
-	err := TranslatedTemplate.ExecuteTemplate(writer, templateName, nil)
-	if err != nil {
-		log.Println(LogHelp.NewLog(LogHelp.Error, "Failed to execute template", struct {
-			TemplateName string `json:"template_name"`
-			Err          string `json:"error"`
-		}{templateName, err.Error()}))
+	AcceptLanguage := request.Header.Get("Accept-Language")
+	tag, _, err := language.ParseAcceptLanguage(AcceptLanguage)
+	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": AcceptLanguage}, err)
+	for _, langTag := range tag {
+		_, ok := i18n.Languages[langTag.String()]
+		if ok {
+			AcceptLanguage = langTag.String()
+			err = nil
+			break
+		}
+		err = errors.New("could not find a suitable language")
 	}
+
+	if err != nil {
+		AcceptLanguage = "en"
+		err = nil
+	}
+	templateFunctionsCopy := web.TemplateFunctions
+	templateFunctionsCopy["translate"] = func(text string) string {
+		lang := i18n.Languages[AcceptLanguage]
+		return lang.Get(text)
+	}
+
+	TranslatedTemplate := u.Template.Funcs(templateFunctionsCopy)
+	err = TranslatedTemplate.ExecuteTemplate(writer, templateName, nil)
+	LogHelp.LogOnError("Failed to execute template", map[string]string{"TemplateName": templateName}, err)
+
+}
+
+func (u *Utility) ReplyTemplateWithData(writer http.ResponseWriter, request *http.Request, templateName string, Data interface{}) {
+	writer.Header().Add("Connection", "keep-alive")
+	AcceptLanguage := request.Header.Get("Accept-Language")
+	tag, _, err := language.ParseAcceptLanguage(AcceptLanguage)
+	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": AcceptLanguage}, err)
+	for _, langTag := range tag {
+		_, ok := i18n.Languages[langTag.String()]
+		if ok {
+			AcceptLanguage = langTag.String()
+			err = nil
+			break
+		}
+		err = errors.New("could not find a suitable language")
+	}
+
+	if err != nil {
+		AcceptLanguage = "en"
+		err = nil
+	}
+	templateFunctionsCopy := web.TemplateFunctions
+	templateFunctionsCopy["translate"] = func(text string) string {
+		lang := i18n.Languages[AcceptLanguage]
+		return lang.Get(text)
+	}
+
+	TranslatedTemplate := u.Template.Funcs(templateFunctionsCopy)
+	err = TranslatedTemplate.ExecuteTemplate(writer, templateName, Data)
+	LogHelp.LogOnError("Failed to execute template", map[string]string{"TemplateName": templateName}, err)
 }
