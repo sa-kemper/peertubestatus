@@ -1,0 +1,56 @@
+{{define "videoCard"}}
+    {{ $video := (index . "Video")}}
+    <div class="video-card">
+        <div class="metadata">
+            <img src="https://{{flagGet "api-host" }}{{ $video.ThumbnailPath}}" alt="{{translate "Video Thumbnail"}}"
+                 class="thumbnail">
+            <div class="video-details">
+                <a href="https://{{flagGet "api-host"}}/w/{{ $video.ShortUUID }}">
+                    <h2>{{ $video.Name }}</h2>
+                </a>
+                <a href="{{$video.Channel.URL}}">
+                    <div class="creator">
+                        <img src="{{if le (len $video.Channel.Avatars) 1 }} {{else}}{{ (index $video.Channel.Avatars 0).Path }}{{end}}"
+                             alt="{{translate "Creator Avatar"}}"
+                             class="avatar">
+                        <span>{{ $video.Channel.Name }}</span>
+                    </div>
+                </a>
+
+                <p>{{translate "Upload Date"}}:{{ $video.CreatedAt }}</p>
+                <p class="stats">{{translate "Views"}}: {{ $video.Views}} | {{translate "Likes"}}
+                    : {{ $video.Likes }}</p>
+                <a href="{{  $video.ID}}"></a>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <table class="charts-css line multiple show-heading show-labels show-primary-axis show-data-axes show-10-secondary-axes">
+                    <caption>{{translate "Views and Likes Over Time"}}</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">{{translate "Date"}}</th>
+                        <th scope="col">{{translate "Views"}}</th>
+                        <th scope="col">{{translate "Likes"}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{/*         The index function is unpacking the map[string]interface{}           */}}
+                    {{/*         In this case we expect a "Video" index with a VideoData value and a "Request" index with a FrontPageRequest value           */}}
+                    {{ range videoStats (index . "Video").ID  (index . "Request") }}
+                        <tr>
+                            <th scope="row">{{ formatDate .Time}}</th>
+                            <td style="--start: {{ .Likes.StartPercentage}}; --end: {{ .Likes.EndPercentage}}; --color: var(--color-1)">
+                                <span class="data">{{.Likes.Data}}</span></td>
+                            <td style="--start: {{.Views.StartPercentage}}; --end: {{.Views.EndPercentage}}; --color: var(--color-2)">
+                                <span class="data">{{.Views.Data}}</span></td>
+                        </tr>
+                    {{ end }}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+{{end}}

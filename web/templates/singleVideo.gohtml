@@ -1,0 +1,156 @@
+{{define "singleVideo"}}
+    <!DOCTYPE html>
+    <html lang="{{ if translate "languagecode"}}{{ translate "languagecode"}}{{else}}en{{end}}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{translate "Video Stats Report"}} - {{.Video.Name}}</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+        <link rel="stylesheet" href="/static/css/style.css">
+    </head>
+    <body data-theme="light">
+    <div class="action-buttons no-print">
+        <button class="action-button" onclick="window.print()">
+            <i class="fas fa-print"></i>
+            <span>{{translate "Print"}}</span>
+        </button>
+        <button class="action-button">
+            <i class="fas fa-file-excel"></i>
+            <span>{{translate "Export to Excel"}}</span>
+        </button>
+    </div>
+    <div class="container">
+        <header class="report-header">
+            <h1>{{translate "Video Statistics Report"}}</h1>
+            <h2>{{.Video.Name}}</h2>
+            {{/*            <p>{{translate "Generated on"}}: {{formatDate}}</p>*/}}
+        </header>
+
+        <section class="video-metadata">
+            <div class="metadata-grid">
+                <div class="thumbnail-container">
+                    <img src="https://{{flagGet "api-host"}}{{.Video.ThumbnailPath}}"
+                         alt="{{translate "Video Thumbnail"}}" class="thumbnail">
+                </div>
+                <div class="details-container">
+                    <div class="creator">
+                        <img src="{{if le (len .Video.Channel.Avatars) 1}} {{else}}{{ (index .Video.Channel.Avatars 0).Path }}{{end}}"
+                             alt="{{translate "Channel Avatar"}}" class="avatar">
+                        <a href="{{.Video.Channel.URL}}"><span>{{.Video.Channel.Name}}</span></a>
+                    </div>
+                    <p><strong>{{translate "Upload Date"}}:</strong> {{ .Video.CreatedAt }}</p>
+                    <p><strong>{{translate "Published Date"}}:</strong> {{.Video.PublishedAt }}</p>
+                    <p><strong>{{translate "Originally Published"}}:</strong> {{ .Video.OriginallyPublishedAt }}</p>
+                    <p><strong>{{translate "Duration"}}:</strong> {{ .Video.Duration }}</p>
+                    <p><strong>{{translate "Category"}}:</strong> {{.Video.Category.Label}}</p>
+                    <p><strong>{{translate "License"}}:</strong> {{.Video.Licence.Label}}</p>
+                    <p><strong>{{translate "Language"}}:</strong> {{.Video.Language.Label}}</p>
+                    <p><strong>{{translate "Is Live"}}:</strong> {{if .Video.IsLive}}{{translate "Yes"}}{{else}}{{translate "No"}}{{end}}</p>
+                    {{if .Video.LiveSchedules}}
+                        <p><strong>{{translate "Live Schedules"}}:</strong>
+                        <ul>
+                            {{range .Video.LiveSchedules}}
+                                <li>{{ formatDate .StartAt }}</li>
+                            {{end}}
+                        </ul>
+                        </p>
+                    {{end}}
+                </div>
+            </div>
+        </section>
+
+        <section class="summary-stats">
+            <h3>{{translate "Summary Statistics"}}</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <i class="fas fa-eye"></i>
+                    <span>{{translate "Views"}}: {{.Video.Views}}</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>{{translate "Likes"}}: {{.Video.Likes}}</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span>{{translate "Dislikes"}}: {{.Video.Dislikes}}</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-comments"></i>
+                    <span>{{translate "Comments"}}: {{.Video.Comments}}</span>
+                </div>
+            </div>
+        </section>
+        {{ with .Video.TruncatedDescription }}
+            <section class="description">
+                <h3>{{translate "Description"}}</h3>
+                <p>{{ . }}</p>
+            </section>
+        {{ end }}
+        <section class="controls-section">
+            <h3 class="no-print">{{translate "Customize Chart"}}</h3>
+            <form class="controls">
+                <div class="radio-inputs">
+                    {{ $timeframeSet := .Request.Timeframe }}
+                    <label class="radio">
+                        <input type="radio" name="timeframe" value="Daily"
+                               {{ if eq $timeframeSet "Daily" }}checked{{ end }} onclick="this.form.submit()">
+                        <span class="name">{{translate "Daily"}}</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="timeframe" value="Monthly"
+                               {{ if eq $timeframeSet "Monthly" }}checked{{ end }} onclick="this.form.submit()">
+                        <span class="name">{{translate "Monthly"}}</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="timeframe" value="Yearly"
+                               {{ if eq $timeframeSet "Yearly" }}checked{{ end }} onclick="this.form.submit()">
+                        <span class="name">{{translate "Yearly"}}</span>
+                    </label>
+                </div>
+                {{ template "twoDateForm" .Request }}
+            </form>
+        </section>
+
+        <section class="chart-section">
+            <h3>{{translate "Views and Likes Over Time"}}</h3>
+            <ul class="charts-css legend">
+                <li style="--color: var(--color-1)">{{translate "Likes"}}</li>
+                <li style="--color: var(--color-2)">{{translate "Views"}}</li>
+            </ul>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <table class="charts-css line multiple show-heading show-labels show-primary-axis show-data-axes show-10-secondary-axes">
+                        <caption>{{translate "Views and Likes Chart"}}</caption>
+                        <thead>
+                        <tr>
+                            <th scope="col">{{translate "Date"}}</th>
+                            <th scope="col">{{translate "Likes"}}</th>
+                            <th scope="col">{{translate "Views"}}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ range videoStats .Video.ID .Request }}
+                            <tr>
+                                <th scope="row">{{ formatDate .Time }}</th>
+                                <td style="--start: {{ .Likes.StartPercentage }}; --end: {{ .Likes.EndPercentage }}; --color: var(--color-1)">
+                                    <span class="data">{{ .Likes.Data }}</span>
+                                </td>
+                                <td style="--start: {{ .Views.StartPercentage }}; --end: {{ .Views.EndPercentage }}; --color: var(--color-2)">
+                                    <span class="data">{{ .Views.Data }}</span>
+                                </td>
+                            </tr>
+                        {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer class="report-footer">
+            <p>{{translate "Data as of"}}: {{.Video.UpdatedAt}}</p>
+        </footer>
+    </div>
+    </body>
+    </html>
+{{end}}
