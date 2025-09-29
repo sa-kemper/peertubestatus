@@ -1,2 +1,14 @@
 /go.sum
 /i18n/locales/*.mo
+/.env
+/en.pot
+/Reports/*
+/Data/*
+/CronSaveStats
+/peertubeExportStat
+/peertube-stats-log-from-*
+/peertubestats
+/peertubeStats.zip
+/dotenv
+/Peek*.mp4
+/worktime.csv
