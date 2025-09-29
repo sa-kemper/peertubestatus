@@ -1,0 +1,19 @@
+{{ define "warningTemplate" }}
+{{- /*gotype: mail/mail.WarningMail */ -}}
+Dear System Administrator,
+The Peertube Stats collection service (CronSaveStats) has encountered a warning. While the service is still operational, your attention is advised to prevent potential issues.
+
+Details:
+
+    Service Name: Peertube Stats
+    Status: Warning
+    Timestamp of Incident: {{ .IncidentTimestamp }}
+    Warning Message: {{ .WarningMessage }}
+    Additional Details < EOF
+    {{ .AdditionalDetails }}
+
+    EOF
+
+Thank you for your attention to this matter.
+{{ end }}
+
