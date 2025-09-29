@@ -62,7 +62,7 @@ func SendPanic(panicMail mail.PanicMail) (err error) {
 		return
 	}
 
-	err = os.WriteFile("peertube-stats-log-from-"+time.Now().Format("2006-01-02-Time-15-04-05"+".txt"), LogBuffer.Bytes(), 0666)
+	err = os.WriteFile("peertube-stats-log-from-"+time.Now().Format("2006-01-02-Time-15-04-05"+".txt"), LogBuffer.Bytes(), 0600)
 	if err != nil {
 		println(err.Error())
 	}
