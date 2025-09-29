@@ -133,15 +133,5 @@ func LogOnWarn(msg string, ctx interface{}, err error) {
 	if err == nil {
 		return
 	}
-	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
-}
-
-func FatalOnError(msg string, ctx interface{}, err error) {
-	if err == nil {
-		return
-	}
-	if ctx == nil {
-		NewLog(Error, msg, map[string]interface{}{"error": err.Error()}).Panic()
-		return
-	}
+	NewLog(Warn, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
 }
