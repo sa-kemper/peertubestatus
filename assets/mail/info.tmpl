@@ -1,0 +1,13 @@
+{{ define "infoTemplate"}}
+Dear System Administrator,
+The Peertube Stats collection service (CronSaveStats) has completed its task successfully. This is a routine update to keep you informed of the service status.
+
+Details:
+
+    Service Name: Peertube Stats
+    Status: Info
+    Timestamp of Incident: {{ .IncidentTimestamp }}
+    Message: {{ .Message }}
+
+Thank you for your attention.
+{{ end }}

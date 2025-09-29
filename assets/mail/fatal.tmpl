@@ -1,0 +1,14 @@
+{{ define "fatal"}}
+{{- /*gotype: mail/mail.PanicMail*/ -}}
+Subject: Peertube stats service experienced a panic
+Dear System Administrator,
+The Peertube Stats collection service (CronSaveStats) has encountered a critical failure and has failed it's task. This issue will impact our data analysis and reporting capabilities. **YOUR ATTENTION IS REQUIRED!**.
+Details:
+
+    Service Name: Peertube Stats
+    Status: Panic
+    Timestamp of Incident: {{ .IncidentTimestamp }}
+    Error Message: {{ .ErrorMessage}}
+
+Thank you for your attention to this urgent issue.
+{{ end }}
