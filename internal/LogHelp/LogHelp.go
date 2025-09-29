@@ -3,9 +3,8 @@ package LogHelp
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
-	"log"
+	"os"
 	"time"
 )
 
@@ -54,8 +53,9 @@ type LogEntry struct {
 func (e LogEntry) String() string {
 	str, err := json.Marshal(e)
 	if err != nil {
-		fmt.Println("LOG ENTRY JSON ERROR:", e.LogTime, e.LogMessage)
-		log.Fatal("FATAL; CANNOT RETURN LOG ENTRY", err)
+		println("LOG ENTRY JSON ERROR:" + "\t" + e.LogTime.String() + "\t" + e.LogMessage)
+		println("FATAL; CANNOT RETURN LOG ENTRY", err)
+		os.Exit(1)
 	}
 	return string(str)
 }
@@ -64,10 +64,11 @@ func (e LogEntry) Log() {
 	if AlternativeWriter != nil {
 		written, err := io.WriteString(*AlternativeWriter, e.String())
 		if err != nil {
-			log.Fatal("FATAL; CANNOT WRITE LOG ENTRY", err, e)
+			println("FATAL; CANNOT WRITE LOG ENTRY" + err.Error())
+			os.Exit(1)
 		}
 		if written < 5 {
-			log.Fatal("writing the log has failed without error,", e.String(), written)
+			println("writing the log has failed without error,"+e.String(), written)
 		}
 	}
 	if e.LogLevelInt >= PrintableLogLevel {
@@ -108,7 +109,7 @@ func LogOnError(msg string, ctx interface{}, err error) {
 		NewLog(Error, msg, map[string]interface{}{"error": err}).Log()
 		return
 	}
-	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err}).Log()
+	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
 }
 
 func LogOnWarn(msg string, ctx interface{}, err error) {
