@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
-	"github.com/sa-kemper/peertubestats/pkg/peertubeapi"
+	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
 func (statIO *StatsIO) ImportFromRaw(rawResponses [][]byte, serverVersion string, CollectionTime time.Time) (err error) {
@@ -78,8 +78,8 @@ func (statIO *StatsIO) mergeVideoDB(inputDatabase VideoDatabase, recordedTs *tim
 	return nil
 }
 
-func (statIO *StatsIO) ReadRawResponses(collectionTime time.Time) (Videos []peertubeapi.VideoData) {
-	Videos = make([]peertubeapi.VideoData, 0)
+func (statIO *StatsIO) ReadRawResponses(collectionTime time.Time) (Videos []peertubeApi.VideoData) {
+	Videos = make([]peertubeApi.VideoData, 0)
 
 	VideosBytes, err := os.ReadFile(statIO.getRawFilePath(collectionTime))
 	LogHelp.LogOnError("cannot read imported data", map[string]interface{}{"collectionTime": collectionTime.Format("2006.01.02")}, err)
@@ -90,7 +90,7 @@ func (statIO *StatsIO) ReadRawResponses(collectionTime time.Time) (Videos []peer
 	}
 	decoder := json.NewDecoder(bytes.NewReader(VideosBytes[versionIndex+1:]))
 	for {
-		var video peertubeapi.VideoResponse
+		var video peertubeApi.VideoResponse
 		err = decoder.Decode(&video)
 		if err != nil {
 			if errors.Is(err, io.EOF) {

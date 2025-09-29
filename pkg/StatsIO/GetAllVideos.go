@@ -1,10 +1,10 @@
 package StatsIO
 
 import (
-	"github.com/sa-kemper/peertubestats/pkg/peertubeapi"
+	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
-func GetAllVideos() (Videos []peertubeapi.VideoData, err error) {
+func GetAllVideos() (Videos []peertubeApi.VideoData, err error) {
 	var VideoDB VideoDatabase
 	VideoDB, err = loadVideoDB()
 	if err != nil {
@@ -16,7 +16,7 @@ func GetAllVideos() (Videos []peertubeapi.VideoData, err error) {
 	return Videos, nil
 }
 
-func GetVideo(id int64) (video peertubeapi.VideoData, err error) {
+func GetVideo(id int64) (video peertubeApi.VideoData, err error) {
 	var VideoDB VideoDatabase
 	VideoDB, err = loadVideoDB()
 	if err != nil {

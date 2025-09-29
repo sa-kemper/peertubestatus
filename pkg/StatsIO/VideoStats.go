@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
-	"github.com/sa-kemper/peertubestats/pkg/peertubeapi"
+	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
 type VideoStat struct {
@@ -64,7 +64,7 @@ func requestTimestamp(ts time.Time, id int64) (result VideoStat, err error) {
 	return VideoStat{Time: ts}, nil
 }
 
-func preCreationPostDeletionShortcut(ts time.Time, metadata peertubeapi.VideoData) (stat VideoStat, err error) {
+func preCreationPostDeletionShortcut(ts time.Time, metadata peertubeApi.VideoData) (stat VideoStat, err error) {
 	// requestTimestamp was unaware of the publishing date. ts<publishDate
 	if publishDate, err := metadata.GetPublishedAt(); err != nil || publishDate.IsZero() {
 		return VideoStat{}, err

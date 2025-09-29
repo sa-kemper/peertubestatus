@@ -6,11 +6,11 @@ import (
 	"os"
 	"path"
 
-	"github.com/sa-kemper/peertubestats/pkg/peertubeapi"
+	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
 // VideoMetadata queries the "DB" for the metadata of the video and returns it.
-func VideoMetadata(id int64) (result peertubeapi.VideoData, err error) {
+func VideoMetadata(id int64) (result peertubeApi.VideoData, err error) {
 	Database.dataMutex.RLock()
 	defer Database.dataMutex.RUnlock()
 	if Database.data == nil {
@@ -32,11 +32,11 @@ func loadVideoDB() (VideoDatabase, error) {
 	jsonDBBytes, err := os.ReadFile(path.Join(Database.DataFolder, "videoDB.json"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return make(map[int64]peertubeapi.VideoData), nil
+			return make(map[int64]peertubeApi.VideoData), nil
 		}
 		return nil, err
 	}
-	var dbMap map[int64]peertubeapi.VideoData
+	var dbMap map[int64]peertubeApi.VideoData
 	err = json.Unmarshal(jsonDBBytes, &dbMap)
 	return dbMap, err
 }

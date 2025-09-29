@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sa-kemper/peertubestats/pkg/peertubeapi"
+	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
-type VideoDatabase map[int64]peertubeapi.VideoData
+type VideoDatabase map[int64]peertubeApi.VideoData
 
-func (db *VideoDatabase) VideoIsDeleted(video peertubeapi.VideoData) *bool {
+func (db *VideoDatabase) VideoIsDeleted(video peertubeApi.VideoData) *bool {
 	dletedDB, err := loadDeletedDB()
 	if err != nil {
 		return nil
@@ -21,12 +21,12 @@ func (db *VideoDatabase) VideoIsDeleted(video peertubeapi.VideoData) *bool {
 	return &deleted
 }
 
-func (db *VideoDatabase) VideoExists(data peertubeapi.VideoData) (exists bool) {
+func (db *VideoDatabase) VideoExists(data peertubeApi.VideoData) (exists bool) {
 	_, exists = (*db)[data.ID]
 	return
 }
 
-func (db *VideoDatabase) VideoAdd(data peertubeapi.VideoData) {
+func (db *VideoDatabase) VideoAdd(data peertubeApi.VideoData) {
 	(*db)[data.ID] = data
 }
 
@@ -36,7 +36,7 @@ type StatsIO struct {
 	data                     *VideoDatabase
 	dataMutex                sync.RWMutex
 	CacheInvalidationSeconds int
-	Api                      *peertubeapi.ApiClient
+	Api                      *peertubeApi.ApiClient
 	firstDataAvailable       time.Time
 }
 
