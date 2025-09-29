@@ -10,7 +10,7 @@ import (
 
 // AlwaysQueue Is a flag to be set if a alternative log delivery system shall be used.
 var AlwaysQueue = false
-var AlternativeWriter *io.Writer
+var AlternativeWriter io.Writer // TODO: Re implement, has no use.
 var PrintableLogLevel LogLevelID
 
 func init() {
@@ -62,7 +62,7 @@ func (e LogEntry) String() string {
 
 func (e LogEntry) Log() {
 	if AlternativeWriter != nil {
-		written, err := io.WriteString(*AlternativeWriter, e.String())
+		written, err := io.WriteString(AlternativeWriter, e.String())
 		if err != nil {
 			println("FATAL; CANNOT WRITE LOG ENTRY" + err.Error())
 			os.Exit(1)
@@ -71,8 +71,25 @@ func (e LogEntry) Log() {
 			println("writing the log has failed without error,"+e.String(), written)
 		}
 	}
-	if e.LogLevelInt >= PrintableLogLevel {
+	if e.LogLevelInt <= PrintableLogLevel {
 		println(e.String())
+	}
+}
+
+func (e LogEntry) Panic() {
+	if AlternativeWriter != nil {
+		written, err := io.WriteString(AlternativeWriter, e.String())
+		if err != nil {
+			println("FATAL; CANNOT WRITE LOG ENTRY" + err.Error())
+			os.Exit(1)
+		}
+		if written < 5 {
+			println("writing the log has failed without error,", e.String(), written)
+		}
+
+	}
+	if e.LogLevelInt >= PrintableLogLevel {
+		panic(e.String())
 	}
 }
 
@@ -116,5 +133,15 @@ func LogOnWarn(msg string, ctx interface{}, err error) {
 	if err == nil {
 		return
 	}
-	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err}).Log()
+	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
+}
+
+func FatalOnError(msg string, ctx interface{}, err error) {
+	if err == nil {
+		return
+	}
+	if ctx == nil {
+		NewLog(Error, msg, map[string]interface{}{"error": err.Error()}).Panic()
+		return
+	}
 }
