@@ -46,6 +46,7 @@ func singleVideoPage(writer http.ResponseWriter, request *http.Request) {
 		Request: FrontPageForm,
 		Video:   video,
 	})
+	request.Close = true
 }
 
 func indexResponse(writer http.ResponseWriter, request *http.Request) {
