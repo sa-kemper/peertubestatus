@@ -6,6 +6,10 @@ import (
 	"html/template"
 	"os"
 	"strings"
+
+	"github.com/sa-kemper/peertubestats/i18n"
+	"github.com/sa-kemper/peertubestats/internal/LogHelp"
+	"golang.org/x/text/language"
 )
 
 type InternalContextIndex int
@@ -104,4 +108,20 @@ func extractValFromEnvBytes(bytes []byte, name string) string {
 		return value
 	}
 	return ""
+}
+
+func ParseLanguage(lang string) (resolvedLang string, err error) {
+	tag, _, err := language.ParseAcceptLanguage(lang)
+	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": lang}, err)
+	for _, langTag := range tag {
+		_, ok := i18n.Languages[langTag.String()]
+		if ok {
+			resolvedLang = langTag.String()
+			err = nil
+			break
+		}
+		err = errors.New("could not find a suitable language")
+		resolvedLang = "en"
+	}
+	return resolvedLang, err
 }
