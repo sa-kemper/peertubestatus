@@ -2,7 +2,7 @@
     {{ $video := (index . "Video")}}
     <div class="video-card">
         <div class="metadata">
-            <img src="https://{{flagGet "api-host" }}{{ $video.ThumbnailPath}}" alt="{{translate "Video Thumbnail"}}"
+            <img src="{{ $video.ThumbnailPath}}" alt="{{translate "Video Thumbnail"}}"
                  class="thumbnail">
             <div class="video-details">
                 <a href="https://{{flagGet "api-host"}}/w/{{ $video.ShortUUID }}">
@@ -11,7 +11,7 @@
                 <a href="{{$video.Channel.URL}}">
                     <div class="creator">
                         <img src="{{if le (len $video.Channel.Avatars) 1 }} {{else}}{{ (index $video.Channel.Avatars 0).Path }}{{end}}"
-                             alt="{{translate "Creator Avatar"}}"
+                             alt="{{ textInitials .Video.Channel.Name }}"
                              class="avatar">
                         <span>{{ $video.Channel.Name }}</span>
                     </div>

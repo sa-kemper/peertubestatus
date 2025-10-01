@@ -31,7 +31,7 @@
                 <div class="details-container">
                     <div class="creator">
                         <img src="{{if le (len .Video.Channel.Avatars) 1}} {{else}}{{ (index .Video.Channel.Avatars 0).Path }}{{end}}"
-                             alt="{{translate "Channel Avatar"}}" class="avatar">
+                             alt="{{ textInitials .Video.Channel.Name }}" class="avatar">
                         <a href="{{.Video.Channel.URL}}"><span>{{.Video.Channel.Name}}</span></a>
                     </div>
                     <p><strong>{{translate "Upload Date"}}:</strong> {{ .Video.CreatedAt }}</p>
@@ -143,10 +143,10 @@
             </div>
         </section>
 
-        <footer class="report-footer">
-            <p>{{translate "Data as of"}}: {{.Video.UpdatedAt}}</p>
-        </footer>
     </div>
+    <footer class="report-footer">
+        <p>{{translate "Data as of"}}: {{.Video.UpdatedAt}}</p>
+    </footer>
     </body>
     </html>
 {{end}}
