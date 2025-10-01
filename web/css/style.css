@@ -280,8 +280,14 @@ p {
 .avatar {
     width: 30px;
     height: 30px;
-    border-radius: 50%;
+    border-radius: 15%;
     margin-right: 10px;
+    background-color:#e76e3c;
+    line-height: 2;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    font-family: Source Sans Pro, sans-serif, monospace;
 }
 
 .stats {
@@ -388,12 +394,17 @@ ul.charts-css.legend li::before {
     box-shadow: 0 4px 8px var(--shadow-color);
 }
 
+.action-button:hover > span {
+    visibility: visible;
+}
+
 .action-button i {
     font-size: 1.25rem;
     min-width: 24px;
 }
 
 .action-button span {
+    visibility: hidden;
     margin-left: 0.75rem;
     font-size: 0.875rem;
     font-weight: 500;
