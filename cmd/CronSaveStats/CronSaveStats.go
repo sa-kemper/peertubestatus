@@ -87,7 +87,7 @@ func main() {
 	err = StatsIO.Database.ImportFromRaw(RawResponses, serverConfig.ServerVersion, collectionTime)
 
 	if err != nil {
-		LogHelp.NewLog(LogHelp.Fatal, "error occurred during stats import", map[string]interface{}{"error": err.Error()})
+		LogHelp.NewLog(LogHelp.Fatal, "error occurred during stats import", map[string]interface{}{"error": err.Error()}).Log()
 		panic(err)
 	}
 }
