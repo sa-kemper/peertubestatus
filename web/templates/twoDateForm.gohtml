@@ -2,8 +2,5 @@
     <div class="date-form" onsubmit="return false;">
         <label>Start Date: <input type="date" onblur="this.form.submit()" name="start_date" {{with .Dates.StartDate}}value="{{ formatDate .}}"{{end}}></label>
         <label>End Date: <input type="date" onblur="this.form.submit()" name="end_date" {{with .Dates.EndDate}}value="{{ formatDate .}}"{{end}}></label>
-        <noscript>
-            <button type="submit" class="filter-button">Filter</button>
-        </noscript>
     </div>
 {{end}}
