@@ -7,7 +7,10 @@ import (
 	"html/template"
 	"io/fs"
 	"log"
+	"net/url"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
@@ -62,6 +65,54 @@ var TemplateFunctions = template.FuncMap{
 		}
 		return flag.Value.String()
 	},
+	"urlEncode": func(s string) string {
+		return url.QueryEscape(s)
+	},
+	"urlDecode": func(s string) (result string) {
+		result, _ = url.QueryUnescape(s)
+		return
+	},
+	"fromSafeSourceToURL": func(s string) template.URL {
+		return template.URL(s)
+	},
+	"textInitials": func(input string) (out string) {
+		input = strings.TrimSpace(input)
+		initials := strings.Split(input, "_")
+		for _, initial := range initials {
+			out += string(initial[0])
+		}
+		return out
+	},
+	"structToUrlParams": func(input interface{}) string {
+		var vals = url.Values{}
+		buildParamsFromStruct(&vals, input)
+		return vals.Encode()
+	},
+}
+
+func buildParamsFromStruct(u *url.Values, input interface{}) {
+	inputType := reflect.TypeOf(input)
+	for i := 0; i < inputType.NumField(); i++ {
+		field := inputType.Field(i)
+		fieldValue := reflect.ValueOf(input).Field(i)
+		filedKind := reflect.TypeOf(fieldValue.Interface()).Kind()
+		fieldName := field.Tag.Get("form")
+		if fieldName == "" || fieldName == "-" {
+			continue
+		}
+		if timeValue, ok := fieldValue.Interface().(time.Time); ok {
+			u.Add(fieldName, timeValue.Format("2006-01-02"))
+			continue
+		}
+		if filedKind == reflect.Struct || filedKind == reflect.Slice || filedKind == reflect.Array {
+			if reflect.TypeOf(fieldValue.Interface()).NumField() > 1 {
+				buildParamsFromStruct(u, fieldValue.Interface())
+			}
+			continue
+		}
+		u.Add(fieldName, fieldValue.String())
+
+	}
 }
 
 func init() {

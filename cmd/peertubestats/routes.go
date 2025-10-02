@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/csv"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
 	"github.com/sa-kemper/peertubestats/internal/Response"
@@ -15,9 +18,44 @@ import (
 )
 
 var routingTable = map[string]func(http.ResponseWriter, *http.Request){
-	"/":           indexResponse,
-	"/static/":    http.StripPrefix("/static", http.FileServerFS(web.CssFileFS)).ServeHTTP,
-	"/Video/{id}": singleVideoPage,
+	"/":                        referToIndex,
+	"/Video":                   VideoIndex,
+	"/static/":                 http.StripPrefix("/static", http.FileServerFS(web.CssFileFS)).ServeHTTP,
+	"/Video/{id}":              singleVideoPage,
+	"/Video/csv":               csvDownload,
+	"/lazy-static/thumbnails/": http.FileServer(http.Dir(path.Join(StatsIO.Database.DataFolder, ""))).ServeHTTP,
+}
+
+func referToIndex(writer http.ResponseWriter, _ *http.Request) {
+	writer.Header().Set("Location", "/Video")
+	writer.WriteHeader(http.StatusPermanentRedirect)
+	return
+}
+
+func csvDownload(writer http.ResponseWriter, request *http.Request) {
+	videos, err := StatsIO.GetAllVideos()
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		LogHelp.NewLog(LogHelp.Error, "cannot obtain videos", map[string]string{"error": err.Error()}).Log()
+		return
+	}
+	var requestParameters templates.FrontPageRequest
+	_ = Response.BindToStruct(request, &requestParameters)
+	data := StatsIO.CsvGenerate(StatsIO.CsvGenerateParameters{
+		Videos:          videos,
+		DisplaySettings: requestParameters,
+		Scope: struct {
+			Views bool
+			Likes bool
+		}{Views: true},
+	})
+
+	writer.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	writer.Header().Set("Content-Disposition", "attachment; filename=\"stats-from"+time.Now().Format("2006-01-02")+".csv\"")
+	writer.WriteHeader(http.StatusOK)
+	csvWriter := csv.NewWriter(writer)
+	err = csvWriter.WriteAll(data)
+	LogHelp.LogOnError("cannot write csv data", nil, err)
 }
 
 func singleVideoPage(writer http.ResponseWriter, request *http.Request) {
@@ -49,7 +87,7 @@ func singleVideoPage(writer http.ResponseWriter, request *http.Request) {
 	request.Close = true
 }
 
-func indexResponse(writer http.ResponseWriter, request *http.Request) {
+func VideoIndex(writer http.ResponseWriter, request *http.Request) {
 	util := request.Context().Value(Response.UtilityIndex)
 	utility := util.(*Response.Utility)
 

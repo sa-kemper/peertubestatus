@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
         <link rel="stylesheet" href="/static/css/style.css">
+
     </head>
     <body data-theme="light">
     <div class="action-buttons no-print">
@@ -15,10 +16,11 @@
             <i class="fas fa-print"></i>
             <span>{{translate "Print"}}</span>
         </button>
-        <button class="action-button">
+        {{/*        Why is this safe? because it has been parsed into a Request object by the backend, if it is not a valid Request struct it cannot arrive at this client. this is a safe echo of the userdata.*/}}
+        <a class="action-button" href="/Video/csv?{{ fromSafeSourceToURL (structToUrlParams (index . "Request"))}}">
             <i class="fas fa-file-excel"></i>
             <span>{{ translate "Open in Excel"}}</span>
-        </button>
+        </a>
     </div>
 
     <div class="container">
@@ -49,6 +51,9 @@
             </div>
 
             {{ template "twoDateForm" .Request }}
+            <noscript>
+                <input type="submit" class="filter-button" value="{{translate "filter"}}">
+            </noscript>
         </form>
 
         <section class="videos-list">
