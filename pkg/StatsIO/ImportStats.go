@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"flag"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
@@ -19,28 +24,90 @@ func (statIO *StatsIO) ImportFromRaw(rawResponses [][]byte, serverVersion string
 	for _, response := range rawResponses {
 		allResponses = append(allResponses, response...)
 	}
+
+	dataPath := statIO.getRawFilePath(CollectionTime)
+	err = os.MkdirAll(path.Dir(dataPath), 0700)
+	LogHelp.LogOnError("cannot create directory", map[string]string{"path": dataPath}, err)
+
 	err = os.WriteFile(statIO.getRawFilePath(CollectionTime), allResponses, 0600)
 	if err != nil {
 		return errors.Join(errors.New("failed to write raw stats"), err)
 	}
-	go statIO.processRawImport(CollectionTime)
-	go statIO.aggregateData(CollectionTime)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go statIO.processRawImport(CollectionTime, &wg)
+	//go statIO.aggregateData(CollectionTime)
+	wg.Wait()
 	return err
 }
 
-func (statIO *StatsIO) getRawFilePath(collectionTime time.Time) string {
-	return path.Join(statIO.DataFolder, collectionTime.Format("2006"), collectionTime.Format("01"), collectionTime.Format("02")+".json")
+func (statIO *StatsIO) getRawFilePath(collectionTime time.Time) (result string) {
+	inputPath := path.Join(statIO.DataFolder, collectionTime.Format("2006"), collectionTime.Format("01"), collectionTime.Format("02")+".json")
+	abs, err := filepath.Abs(inputPath)
+	if err == nil {
+		return abs
+	}
+	return inputPath
 }
 
-func (statIO *StatsIO) processRawImport(collectionTime time.Time) {
+func (statIO *StatsIO) processRawImport(collectionTime time.Time, wg *sync.WaitGroup) {
+	defer wg.Done()
 	videos := statIO.ReadRawResponses(collectionTime)
 	var videosDb = make(VideoDatabase)
+	var LocalWg sync.WaitGroup
+	LocalWg.Add(len(videos))
 	for id, video := range videos {
 		videosDb[int64(id)] = video
+		go func() {
+			defer LocalWg.Done()
+			thumbnailPath := path.Join(Database.DataFolder, video.ThumbnailPath)
+			mkErr := os.MkdirAll(path.Dir(thumbnailPath), 0700)
+			if mkErr != nil {
+				LogHelp.NewLog(LogHelp.Fatal, "cannot create directory", map[string]string{"path": path.Dir(thumbnailPath), "fullPath": thumbnailPath})
+			}
+			absPath, _ := filepath.Abs(thumbnailPath)
+
+			if stat, _ := os.Stat(thumbnailPath); stat == nil {
+				client := http.Client{
+					Timeout: time.Second * 5,
+				}
+				response, err := client.Do(
+					&http.Request{
+						Method: http.MethodGet,
+						URL: &url.URL{
+							Scheme: "https",
+							Host:   flag.Lookup("api-host").Value.String(),
+							Path:   video.ThumbnailPath,
+						},
+						Host: flag.Lookup("api-host").Value.String(),
+					},
+				)
+				if err != nil || response.StatusCode != http.StatusOK {
+					var body []byte
+					if response != nil {
+						body, _ = io.ReadAll(response.Body)
+					}
+					LogHelp.NewLog(LogHelp.Fatal, "cannot request thumbnail", map[string]string{"error": err.Error(), "response": string(body)}).Log()
+					return
+				}
+				defer response.Body.Close()
+				fHandler, err := os.OpenFile(absPath, os.O_CREATE|os.O_RDWR, 0600)
+				if err != nil || response.StatusCode != http.StatusOK {
+					LogHelp.NewLog(LogHelp.Fatal, "cannot create thumbnail file", map[string]string{"error": err.Error()}).Log()
+					return
+				}
+				_, err = io.Copy(fHandler, response.Body)
+				if err != nil {
+					LogHelp.NewLog(LogHelp.Fatal, "cannot write thumbnail file", map[string]string{"error": err.Error()}).Log()
+					return
+				}
+			}
+		}()
 	}
 
 	err := statIO.mergeVideoDB(videosDb, &collectionTime)
 	LogHelp.LogOnError("failed to merge input database into stored database", map[string]string{"collectionTime": collectionTime.Format("2006.01.02")}, err)
+	LocalWg.Wait()
 }
 
 func (statIO *StatsIO) mergeVideoDB(inputDatabase VideoDatabase, recordedTs *time.Time) (err error) {
