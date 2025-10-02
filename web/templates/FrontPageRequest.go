@@ -28,12 +28,13 @@ func (fpr *FrontPageRequest) HandleZeroDate() {
 		}
 		// in case of a fallthrough assume daily
 		fpr.Timeframe = "Daily"
+
 	case "Monthly":
-		if fpr.Dates.StartDate.Equal(now) {
+		if fpr.Dates.StartDate.Equal(now) || fpr.Dates.EndDate.Sub(fpr.Dates.StartDate).Hours() < ((24*30)*2) {
 			fpr.Dates.StartDate = now.AddDate(0, -5, 0)
 		}
 	case "Yearly":
-		if fpr.Dates.StartDate.Equal(now) {
+		if fpr.Dates.StartDate.Equal(now) || fpr.Dates.EndDate.Sub(fpr.Dates.StartDate).Hours() < ((24*30)*12)*2 {
 			fpr.Dates.StartDate = now.AddDate(-4, 0, 0)
 		}
 
