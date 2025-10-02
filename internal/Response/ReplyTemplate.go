@@ -24,11 +24,7 @@ func (u *Utility) ReplyTemplate(writer http.ResponseWriter, request *http.Reques
 		err = errors.New("could not find a suitable language")
 	}
 
-	if err != nil {
-		AcceptLanguage = "en"
-		err = nil
-	}
-	templateFunctionsCopy := web.TemplateFunctions
+	templateFunctionsCopy := maps.Clone(web.TemplateFunctions)
 	templateFunctionsCopy["translate"] = func(text string) string {
 		lang := i18n.Languages[AcceptLanguage]
 		return lang.Get(text)
@@ -59,7 +55,7 @@ func (u *Utility) ReplyTemplateWithData(writer http.ResponseWriter, request *htt
 		AcceptLanguage = "en"
 		err = nil
 	}
-	templateFunctionsCopy := web.TemplateFunctions
+	templateFunctionsCopy := maps.Clone(web.TemplateFunctions)
 	templateFunctionsCopy["translate"] = func(text string) string {
 		lang := i18n.Languages[AcceptLanguage]
 		return lang.Get(text)
