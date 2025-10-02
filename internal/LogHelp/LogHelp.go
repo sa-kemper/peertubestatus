@@ -50,6 +50,14 @@ type LogEntry struct {
 	LogContext  interface{} `json:"log_context"`
 }
 
+func (e LogEntry) Error() string {
+	return e.LogMessage
+}
+
+func (e LogEntry) RuntimeError() {
+	return
+}
+
 func (e LogEntry) String() string {
 	str, err := json.Marshal(e)
 	if err != nil {
@@ -123,7 +131,7 @@ func LogOnError(msg string, ctx interface{}, err error) {
 		return
 	}
 	if ctx == nil {
-		NewLog(Error, msg, map[string]interface{}{"error": err}).Log()
+		NewLog(Error, msg, map[string]interface{}{"error": err.Error()}).Log()
 		return
 	}
 	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
