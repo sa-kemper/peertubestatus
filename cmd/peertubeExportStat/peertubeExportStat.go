@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/csv"
-	"errors"
 	"flag"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
@@ -17,7 +17,6 @@ import (
 	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 	"github.com/sa-kemper/peertubestats/web"
 	"github.com/sa-kemper/peertubestats/web/templates"
-	"golang.org/x/text/language"
 )
 
 var Config struct {
@@ -56,8 +55,8 @@ func main() {
 	StatsIO.Database.Init()
 	videos, err := StatsIO.GetAllVideos()
 	if err != nil {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot get all videos", map[string]interface{}{"errors": err, "videos": videos}).Log()
 	}
-	LogHelp.NewLog(LogHelp.Fatal, "cannot get all videos", map[string]interface{}{"videos": videos, "errors": err})
 
 	StartDate, err := time.Parse("2006.01.02", Config.StartDateParam)
 	if Config.StartDateParam != "" {
@@ -83,59 +82,70 @@ func main() {
 	err = os.MkdirAll(filepath.Join(Config.OutputFolder, "static"), 0700)
 	LogHelp.LogOnError("cannot create static style directory", map[string]interface{}{"outputFolder": Config.OutputFolder}, err)
 
-	styleBytes, err := web.CssFileFS.ReadFile("css/style.css")
-	err = os.WriteFile(filepath.Join(Config.OutputFolder, "static", "style.css"), styleBytes, 0600)
-	LogHelp.LogOnError("cannot create static style directory", map[string]interface{}{"outputFolder": Config.OutputFolder}, err)
+	go func() {
+		styleBytes, err := web.CssFileFS.ReadFile("css/style.css")
+		err = os.WriteFile(filepath.Join(Config.OutputFolder, "static", "style.css"), styleBytes, 0600)
+		LogHelp.LogOnError("cannot create static style directory", map[string]interface{}{"outputFolder": Config.OutputFolder}, err)
+	}()
+
+	Config.OutputLanguage, err = Response.ParseLanguage(Config.OutputLanguage)
+	LogHelp.LogOnError("cannot parse language", map[string]string{"language": Config.OutputLanguage}, err)
 
 	// while the reports are being generated, handle the writing of the views.csv
-	go func() {
-		fileHandle, localErr := os.OpenFile(filepath.Join(Config.OutputFolder, "views.csv"), os.O_RDWR|os.O_CREATE, 0600)
-		if localErr != nil {
-			LogHelp.NewLog(LogHelp.Fatal, "cannot create views.csv", map[string]string{"error": localErr.Error()}).Log()
-		}
-		defer fileHandle.Close()
-		writer := csv.NewWriter(fileHandle)
-		defer writer.Flush()
-		localErr = writer.WriteAll(csvGenerate(videos, DisplaySettings))
-		if localErr != nil {
-			LogHelp.NewLog(LogHelp.Fatal, "cannot write to views.csv", map[string]string{"error": localErr.Error()}).Log()
-		}
-	}()
+	fileHandle, localErr := os.OpenFile(filepath.Join(Config.OutputFolder, "views.csv"), os.O_RDWR|os.O_CREATE, 0600)
+	if localErr != nil {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot create views.csv", map[string]string{"error": localErr.Error()}).Log()
+	}
+	defer fileHandle.Close()
+	writer := csv.NewWriter(fileHandle)
+	defer writer.Flush()
+	localErr = writer.WriteAll(StatsIO.CsvGenerate(StatsIO.CsvGenerateParameters{
+		Videos:          videos,
+		DisplaySettings: DisplaySettings,
+		Scope: struct {
+			Views bool
+			Likes bool
+		}{
+			Views: true,
+			Likes: false,
+		},
+	}))
+	if localErr != nil {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot write to views.csv", map[string]string{"error": localErr.Error()}).Log()
+	}
+
+	// while the reports are being generated, output an index page.
+	fileHandler, LocalErr := os.OpenFile(filepath.Join(Config.OutputFolder, "index.html"), os.O_RDWR|os.O_CREATE, 0600)
+	if LocalErr != nil {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot create index.html", map[string]string{"error": LocalErr.Error()}).Log()
+		return
+	}
+	defer fileHandler.Close()
+
+	TranslatedTemplate, LocalErr := web.Templates.Clone()
+	if LocalErr != nil {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot clone template", map[string]string{"error": LocalErr.Error()}).Log()
+	}
+
+	translatedFunctions := maps.Clone(web.TemplateFunctions)
+	translatedFunctions["translate"] = func(text string) string {
+		lang := i18n.Languages[Config.OutputLanguage]
+		return lang.Get(text)
+	}
+
+	LocalErr = TranslatedTemplate.Funcs(translatedFunctions).ExecuteTemplate(fileHandler, "reportIndex", map[string]interface{}{"Videos": videos})
+	LogHelp.LogOnError("cannot write index report page", nil, LocalErr)
 
 	for _, vid := range videos {
 		filePath := path.Join(Config.OutputFolder, "ReportFor_"+vid.Name+".html")
 		absFilePath, err := filepath.Abs(filePath)
 		LogHelp.LogOnError("cannot find absolute file path", map[string]string{"filePath": filePath}, err)
+
 		fHandler, err := os.OpenFile(absFilePath, os.O_RDWR|os.O_CREATE, 0600)
 		LogHelp.LogOnError("cannot open report file", map[string]interface{}{"filename": "ReportFor_" + vid.Name + ".html"}, err)
 		if err != nil {
 			continue
 		}
-
-		tag, _, err := language.ParseAcceptLanguage(Config.OutputLanguage)
-		LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": Config.OutputLanguage}, err)
-		for _, langTag := range tag {
-			_, ok := i18n.Languages[langTag.String()]
-			if ok {
-				Config.OutputLanguage = langTag.String()
-				err = nil
-				break
-			}
-			err = errors.New("could not find a suitable language")
-		}
-
-		if err != nil {
-			Config.OutputLanguage = "en"
-			err = nil
-		}
-		templateFunctionsCopy := web.TemplateFunctions
-		templateFunctionsCopy["translate"] = func(text string) string {
-			lang := i18n.Languages[Config.OutputLanguage]
-			return lang.Get(text)
-		}
-
-		TranslatedTemplate := web.Templates
-		TranslatedTemplate.Funcs(templateFunctionsCopy)
 
 		err = TranslatedTemplate.ExecuteTemplate(fHandler, "singleVideoExport", struct {
 			Video   peertubeApi.VideoData
@@ -154,8 +164,10 @@ func main() {
 				"startDate":       StartDate,
 				"endDate":         EndDate,
 				"error":           err,
-			})
-			os.Exit(1)
+			}).Log()
 		}
+
+		err = fHandler.Close()
+		LogHelp.LogOnError("cannot close file", map[string]interface{}{"filename": "ReportFor_" + vid.Name + ".html"}, err)
 	}
 }
