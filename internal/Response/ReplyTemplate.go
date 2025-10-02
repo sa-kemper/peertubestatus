@@ -21,7 +21,14 @@ func (u *Utility) ReplyTemplate(writer http.ResponseWriter, request *http.Reques
 		return lang.Get(text)
 	}
 
-	TranslatedTemplate := u.Template.Funcs(templateFunctionsCopy)
+	TranslatedTemplate, err := u.Template.Clone()
+	LogHelp.LogOnError("Copying template failed", nil, err)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	TranslatedTemplate.Funcs(templateFunctionsCopy)
+
 	err = TranslatedTemplate.ExecuteTemplate(writer, templateName, nil)
 	LogHelp.LogOnError("Failed to execute template", map[string]string{"TemplateName": templateName}, err)
 
