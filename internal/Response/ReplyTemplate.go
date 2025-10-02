@@ -2,6 +2,7 @@ package Response
 
 import (
 	"errors"
+	"maps"
 	"net/http"
 
 	"github.com/sa-kemper/peertubestats/i18n"
