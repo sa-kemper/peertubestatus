@@ -12,17 +12,8 @@ import (
 
 func (u *Utility) ReplyTemplate(writer http.ResponseWriter, request *http.Request, templateName string) {
 	AcceptLanguage := request.Header.Get("Accept-Language")
-	tag, _, err := language.ParseAcceptLanguage(AcceptLanguage)
-	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": AcceptLanguage}, err)
-	for _, langTag := range tag {
-		_, ok := i18n.Languages[langTag.String()]
-		if ok {
-			AcceptLanguage = langTag.String()
-			err = nil
-			break
-		}
-		err = errors.New("could not find a suitable language")
-	}
+	AcceptLanguage, err := ParseLanguage(AcceptLanguage)
+	LogHelp.LogOnError("cannot find suitable language", map[string]string{"Accept-Language": AcceptLanguage}, err)
 
 	templateFunctionsCopy := maps.Clone(web.TemplateFunctions)
 	templateFunctionsCopy["translate"] = func(text string) string {
