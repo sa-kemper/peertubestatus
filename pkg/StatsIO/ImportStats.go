@@ -6,12 +6,15 @@ import (
 	"errors"
 	"flag"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"slices"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -53,21 +56,28 @@ func (statIO *StatsIO) getRawFilePath(collectionTime time.Time) (result string) 
 func (statIO *StatsIO) processRawImport(collectionTime time.Time, wg *sync.WaitGroup) {
 	defer wg.Done()
 	videos := statIO.ReadRawResponses(collectionTime)
-	var videosDb = make(VideoDatabase)
+	var videosDb = sync.Map{}
 	var LocalWg sync.WaitGroup
 	LocalWg.Add(len(videos))
 	for id, video := range videos {
-		videosDb[int64(id)] = video
+		videosDb.Store(id, video)
 		go func() {
 			defer LocalWg.Done()
 			thumbnailPath := path.Join(Database.DataFolder, video.ThumbnailPath)
+			bits, _ := json.Marshal(thumbnailPath)
+			if strings.Contains(string(bits), "6aT1w9gQWwD3bTvqZZBPu2") {
+				print("Debug entry point\n")
+				print(video.ThumbnailPath)
+			}
+
 			mkErr := os.MkdirAll(path.Dir(thumbnailPath), 0700)
 			if mkErr != nil {
-				LogHelp.NewLog(LogHelp.Fatal, "cannot create directory", map[string]string{"path": path.Dir(thumbnailPath), "fullPath": thumbnailPath})
+				LogHelp.NewLog(LogHelp.Fatal, "cannot create directory", map[string]string{"path": path.Dir(thumbnailPath), "fullPath": thumbnailPath}).Log()
 			}
 			absPath, _ := filepath.Abs(thumbnailPath)
 
 			if stat, _ := os.Stat(thumbnailPath); stat == nil {
+				// we do not use the API client as we know most of the video's metadata and creating a new api client just for this would be an overhead.
 				client := http.Client{
 					Timeout: time.Second * 5,
 				}
@@ -105,42 +115,50 @@ func (statIO *StatsIO) processRawImport(collectionTime time.Time, wg *sync.WaitG
 		}()
 	}
 
-	err := statIO.mergeVideoDB(videosDb, &collectionTime)
+	err := statIO.mergeVideoDB(&videosDb, &collectionTime)
 	LogHelp.LogOnError("failed to merge input database into stored database", map[string]string{"collectionTime": collectionTime.Format("2006.01.02")}, err)
 	LocalWg.Wait()
 }
 
-func (statIO *StatsIO) mergeVideoDB(inputDatabase VideoDatabase, recordedTs *time.Time) (err error) {
-	statIO.dataMutex.Lock()
-	defer statIO.dataMutex.Unlock()
-
+func (statIO *StatsIO) mergeVideoDB(inputDatabase *sync.Map, recordedTs *time.Time) (err error) {
 	if recordedTs == nil {
 		now := time.Now()
 		recordedTs = &now
 	}
-
-	for i := range *statIO.data {
-		if _, ok := inputDatabase[i]; !ok {
-			DbVideo := (*(*statIO).data)[i]
-			deleted := statIO.data.VideoIsDeleted(DbVideo)
-			if deleted == nil {
-				LogHelp.NewLog(LogHelp.Error, "cannot retrieve deleted state of video", map[string]interface{}{"video": inputDatabase[i]})
-				continue
+	// Go through the current database to check if a video hsa been deleted
+	statIO.data.Range(func(key, value interface{}) bool {
+		// if the key from the input is not found, it is either deleted, or new
+		if _, found := inputDatabase.Load(key); !found {
+			vid, _ := statIO.data.Load(key)
+			videoFromDB := vid.(peertubeApi.VideoData)
+			// Handle the deletion, if the recorded timestamp a
+			deletedValue, _ := statIO.deletedDb.Load(videoFromDB.ID)
+			// if the video was deleted before the recorded state, it is just deleted
+			if deleted := deletedValue.(time.Time); deleted.Before(*recordedTs) {
+				return true
+			} else if deleted.After(*recordedTs) {
+				// if the video is deleted, in the future (relative to recordedTs), then we are fixing up data from the past.
+				LogHelp.NewLog(LogHelp.Warn, "Writing video data in the past.", map[string]string{
+					"VideoID":      strconv.FormatInt(videoFromDB.ID, 10),
+					"DataRecorded": recordedTs.Format(time.RFC3339),
+					"VideoDeleted": deleted.Format(time.RFC3339),
+				})
+				/*
+					Why do we even allow this?
+					This is a use case where the data is broken, or should be updated from the past, you can just pass old (missing) data to update the database.
+					This is only a problem if this happens un intentionally. therefore there is a warning.
+				*/
+				statIO.deletedDb.Swap(videoFromDB.ID, recordedTs)
 			}
 
-			if *deleted {
-				err = statIO.data.VideoDelete(i, recordedTs)
-				if err != nil {
-					return err
-				}
-			}
 		}
-	}
-	for i := range inputDatabase {
-		if !statIO.data.VideoExists(inputDatabase[i]) {
-			statIO.data.VideoAdd(inputDatabase[i])
-		}
-	}
+		return true
+	})
+
+	inputDatabase.Range(func(key, value interface{}) bool {
+		statIO.data.Store(key, value)
+		return true
+	})
 
 	return nil
 }
@@ -171,7 +189,145 @@ func (statIO *StatsIO) ReadRawResponses(collectionTime time.Time) (Videos []peer
 	return
 }
 
-func (statIO *StatsIO) aggregateData(time time.Time) {
-	// TODO: Implelemt
-	panic("implement me")
+// paddNumber is used to get the file name part of the saved data, we use time.Format("02") which is a zero padded date. this helps retrieving the file.
+func paddNumber(width int, number int) string {
+	numStr := strconv.Itoa(number)
+	for len(numStr) < width {
+		numStr = "0" + numStr
+	}
+	return numStr
+}
+
+func (statIO *StatsIO) aggregateData(time time.Time) (monthDb, YearDb, FullDb map[int64]peertubeApi.VideoData) {
+	var db = new(sync.Map)
+	monthDb, YearDb, FullDb = make(map[int64]peertubeApi.VideoData), make(map[int64]peertubeApi.VideoData), make(map[int64]peertubeApi.VideoData)
+
+	err := aggregateMonth(time, db)
+	LogHelp.LogOnError("error aggregating month data", map[string]interface{}{"collectionTime": time.Format("2006.01.02")}, err)
+
+	db.Range(func(key, value interface{}) bool { // copy the state of the database into a separate object.
+		monthDb[key.(int64)] = value.(peertubeApi.VideoData)
+		return true
+	})
+
+	err = aggregateYear(time, db)
+	LogHelp.LogOnError("error aggregating year data", map[string]interface{}{"collectionTime": time.Format("2006.01.02")}, err)
+
+	db.Range(func(key, value interface{}) bool { // copy the state of the database into a separate object.
+		YearDb[key.(int64)] = value.(peertubeApi.VideoData)
+		return true
+	})
+
+	err = aggregateFull(db)
+	LogHelp.LogOnError("error aggregating full data", map[string]interface{}{"collectionTime": time.Format("2006.01.02")}, err)
+
+	db.Range(func(key, value interface{}) bool { // copy the state of the database into a separate object.
+		FullDb[key.(int64)] = value.(peertubeApi.VideoData)
+		return true
+	})
+	return
+}
+
+func aggregateFull(db *sync.Map) error {
+	wg := sync.WaitGroup{}
+	yearsToCollect := time.Now().Year() - Database.firstDataAvailable.Year()
+	wg.Add(yearsToCollect)
+	for iterator := 0; iterator < yearsToCollect; iterator++ {
+		yearDatabaseBasePath := path.Join(Database.DataFolder, paddNumber(2, iterator)+".json")
+		yearDatabaseAbsPath, err := filepath.Abs(yearDatabaseBasePath)
+		if err != nil {
+			return err
+		}
+		go func() {
+			defer wg.Done()
+			fHandler, localErr := os.OpenFile(yearDatabaseAbsPath, os.O_RDONLY, 0600)
+			if localErr != nil {
+				err = errors.Join(err, localErr)
+				return
+			}
+			defer fHandler.Close()
+			var responses []peertubeApi.VideoResponse
+			decodeErr := json.NewDecoder(fHandler).Decode(&responses)
+			if decodeErr != nil {
+				err = errors.Join(err, decodeErr)
+				return
+			}
+			aggregate(responses, db)
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+
+func aggregateYear(timeStamp time.Time, db *sync.Map) (err error) {
+	wg := sync.WaitGroup{}
+	wg.Add(int(timeStamp.Month()))
+	for iterator := 0; iterator < int(timeStamp.Month()); iterator++ {
+		monthDatabasePath := path.Join(Database.DataFolder, timeStamp.Format("2006"), paddNumber(2, iterator)+".json")
+		go func() {
+			defer wg.Done()
+			fHandler, LocalErr := os.OpenFile(monthDatabasePath, os.O_RDONLY, 0600)
+			if LocalErr != nil {
+				err = errors.Join(err, LocalErr)
+				return
+			}
+			var responses []peertubeApi.VideoResponse
+			err = json.NewDecoder(fHandler).Decode(&responses)
+			if err != nil {
+				err = errors.Join(err, LocalErr)
+				return
+			}
+			aggregate(responses, db)
+		}()
+	}
+
+	wg.Wait()
+	return
+}
+
+func aggregateMonth(time time.Time, db *sync.Map) error {
+	folder := path.Join(Database.DataFolder, time.Format("2006"), time.Format("01"))
+	abs, _ := filepath.Abs(folder)
+	err := filepath.WalkDir(abs, func(path string, d fs.DirEntry, err error) error {
+		var responses []peertubeApi.VideoResponse
+		fHandle, _ := os.OpenFile(path, os.O_RDONLY, 0600)
+		err = json.NewDecoder(fHandle).Decode(&responses)
+		if err != nil {
+			return err
+		}
+		aggregate(responses, db)
+		return nil
+	})
+	return err
+}
+
+// aggregate is simple, go through the data, if it seems more up to date, swap the db entry.
+// the up-to-date ness is determined by the likes and views which are never decreasing.
+func aggregate(responses []peertubeApi.VideoResponse, db *sync.Map) {
+	var responseMap map[int64]peertubeApi.VideoData
+	for _, response := range responses {
+		for _, video := range response.Data {
+			responseMap[video.ID] = video
+			vid, notFound := db.Load(video.ID)
+			dbVideo := vid.(peertubeApi.VideoData)
+			if notFound {
+				db.Store(video.ID, video)
+				continue
+			}
+			if dbVideo.Views < video.Views || dbVideo.Likes < video.Likes {
+				db.Swap(video.ID, video)
+				// TODO: load the new thumbnail, shadow the old one?
+				// Details: sometimes the thumbnail path changes, and maybe the new one gets saved by the other processing functions, but idk what to do with the old ones yet, this is yet to be implemented.
+			}
+		}
+	}
+	// walk through the responses, if a video has been deleted, delete it from the db as well.
+	db.Range(func(key, value interface{}) bool {
+		_, found := responseMap[key.(int64)]
+		if !found {
+			db.Delete(key)
+		}
+		return true
+	})
+
 }
