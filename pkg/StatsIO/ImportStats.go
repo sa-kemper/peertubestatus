@@ -120,44 +120,59 @@ func (statIO *StatsIO) processRawImport(collectionTime time.Time, wg *sync.WaitG
 	LocalWg.Wait()
 }
 
-func (statIO *StatsIO) mergeVideoDB(inputDatabase *sync.Map, recordedTs *time.Time) (err error) {
-	if recordedTs == nil {
-		now := time.Now()
-		recordedTs = &now
-	}
-	// Go through the current database to check if a video hsa been deleted
-	statIO.data.Range(func(key, value interface{}) bool {
-		// if the key from the input is not found, it is either deleted, or new
-		if _, found := inputDatabase.Load(key); !found {
-			vid, _ := statIO.data.Load(key)
-			videoFromDB := vid.(peertubeApi.VideoData)
-			// Handle the deletion, if the recorded timestamp a
-			deletedValue, _ := statIO.deletedDb.Load(videoFromDB.ID)
-			// if the video was deleted before the recorded state, it is just deleted
-			if deleted := deletedValue.(time.Time); deleted.Before(*recordedTs) {
-				return true
-			} else if deleted.After(*recordedTs) {
-				// if the video is deleted, in the future (relative to recordedTs), then we are fixing up data from the past.
-				LogHelp.NewLog(LogHelp.Warn, "Writing video data in the past.", map[string]string{
-					"VideoID":      strconv.FormatInt(videoFromDB.ID, 10),
-					"DataRecorded": recordedTs.Format(time.RFC3339),
-					"VideoDeleted": deleted.Format(time.RFC3339),
-				})
-				/*
-					Why do we even allow this?
-					This is a use case where the data is broken, or should be updated from the past, you can just pass old (missing) data to update the database.
-					This is only a problem if this happens un intentionally. therefore there is a warning.
-				*/
-				statIO.deletedDb.Swap(videoFromDB.ID, recordedTs)
-			}
+// mergeVideoDB adds the inputDatabase to the currentData, while adding removed entries to the deletedDb.
+// mergeVideoDB does not remove entries from the currentData as it is still used for metadata lookup.
+func mergeVideoDB(currentData *sync.Map, inputDatabase *sync.Map, deletedDb *sync.Map, recordedTs time.Time) (err error) {
+	// Check for deleted or modified videos
+	currentData.Range(func(key, value interface{}) bool {
+		// TODO: Swap the entries if the thumbnail path changes.
+		// Why? because they are regenerated from time to time, and this results in broken thumbnail requests.
 
+		// if the key from the input is not found, it is either deleted or new
+		if _, found := inputDatabase.Load(key); !found {
+			videoFromDB := value.(peertubeApi.VideoData)
+
+			// Retrieve deletion time for the video
+			deletedValue, foundInDeletedDB := deletedDb.Load(videoFromDB.ID)
+
+			if foundInDeletedDB {
+				deletionTs := deletedValue.(time.Time)
+
+				// If video was foundInDeletedDB before the recorded state, ignore
+				if deletionTs.Before(recordedTs) {
+					return true
+				}
+
+				// If video is foundInDeletedDB in the future, log a warning
+				if deletionTs.After(recordedTs) {
+					LogHelp.NewLog(LogHelp.Warn, "Writing video data in the past.", map[string]string{
+						"VideoID":      strconv.FormatInt(videoFromDB.ID, 10),
+						"DataRecorded": recordedTs.Format(time.RFC3339),
+						"VideoDeleted": deletionTs.Format(time.RFC3339),
+					}).Log()
+
+					// Update deletion timestamp
+					deletedDb.Store(videoFromDB.ID, recordedTs)
+				}
+				return true
+			}
+			if !foundInDeletedDB {
+				// video is not found in the new data, and it is not in the foundInDeletedDB
+				VideoDelete(videoFromDB.ID, recordedTs, deletedDb)
+			}
 		}
+
 		return true
 	})
 
+	// Merge input database into current data
 	inputDatabase.Range(func(key, value interface{}) bool {
-		statIO.data.Store(key, value)
-		return true
+		keyint, ok1 := key.(int64)
+		LogHelp.ErrorOnNotOK("cannot cast inputdatabase index to int64 (mergeVideoDB)", nil, ok1)
+		valueVideo, ok2 := value.(peertubeApi.VideoData)
+		LogHelp.ErrorOnNotOK("cannot cast inputdatabase value to peertubeApi.VideoData (mergeVideoDB)", nil, ok2)
+		currentData.Store(keyint, valueVideo)
+		return ok1 && ok2
 	})
 
 	return nil
