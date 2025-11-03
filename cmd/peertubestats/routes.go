@@ -29,7 +29,6 @@ var routingTable = map[string]func(http.ResponseWriter, *http.Request){
 func referToIndex(writer http.ResponseWriter, _ *http.Request) {
 	writer.Header().Set("Location", "/Video")
 	writer.WriteHeader(http.StatusPermanentRedirect)
-	return
 }
 
 func csvDownload(writer http.ResponseWriter, request *http.Request) {
@@ -105,16 +104,9 @@ func VideoIndex(writer http.ResponseWriter, request *http.Request) {
 	if FrontPageForm.Query == "" {
 		Videos = AllVideos
 	} else {
+		FrontPageForm.Query = strings.ToLower(FrontPageForm.Query)
 		for _, video := range AllVideos {
-			if strings.Contains(video.Name, FrontPageForm.Query) {
-				Videos = append(Videos, video)
-			}
-
-			if strings.Contains(video.Channel.Name, FrontPageForm.Query) {
-				Videos = append(Videos, video)
-			}
-
-			if strings.Contains(video.Account.Name, FrontPageForm.Query) {
+			if strings.Contains(strings.ToLower(video.Name), FrontPageForm.Query) || strings.Contains(strings.ToLower(video.Channel.Name), FrontPageForm.Query) || strings.Contains(strings.ToLower(video.Account.Name), FrontPageForm.Query) || strings.Contains(strings.ToLower(video.Channel.Name), FrontPageForm.Query) || strings.Contains(strings.ToLower(video.Category.Label), FrontPageForm.Query) || strings.Contains(strings.ToLower(video.TruncatedDescription), FrontPageForm.Query) {
 				Videos = append(Videos, video)
 			}
 		}
