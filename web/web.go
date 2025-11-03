@@ -54,6 +54,7 @@ var TemplateFunctions = template.FuncMap{
 		LogHelp.LogOnError("Cannot retrieve stats", map[string]interface{}{"videoID": videoID, "request": request}, err)
 		return stats
 	},
+	"VideoNameToFilePath": StatsIO.VideoNameToFilePath,
 	"formatDate": func(date time.Time) string {
 		return date.Format("2006-01-02")
 	},

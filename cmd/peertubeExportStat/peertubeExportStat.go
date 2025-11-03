@@ -137,12 +137,13 @@ func main() {
 	LogHelp.LogOnError("cannot write index report page", nil, LocalErr)
 
 	for _, vid := range videos {
-		filePath := path.Join(Config.OutputFolder, "ReportFor_"+vid.Name+".html")
+		filePath := path.Join(Config.OutputFolder, "ReportFor_"+StatsIO.VideoNameToFilePath(vid.Name)+".html")
 		absFilePath, err := filepath.Abs(filePath)
 		LogHelp.LogOnError("cannot find absolute file path", map[string]string{"filePath": filePath}, err)
 
 		fHandler, err := os.OpenFile(absFilePath, os.O_RDWR|os.O_CREATE, 0600)
 		LogHelp.LogOnError("cannot open report file", map[string]interface{}{"filename": "ReportFor_" + vid.Name + ".html"}, err)
+		LogHelp.LogOnError("cannot open report file", map[string]interface{}{"filename": "ReportFor_" + StatsIO.VideoNameToFilePath(vid.Name) + ".html"}, err)
 		if err != nil {
 			continue
 		}
@@ -156,7 +157,7 @@ func main() {
 		})
 		if err != nil {
 			LogHelp.NewLog(LogHelp.Fatal, "cannot output report file", map[string]interface{}{
-				"filename":        "ReportFor_" + vid.Name + ".html",
+				"filename":        "ReportFor_" + StatsIO.VideoNameToFilePath(vid.Name) + ".html",
 				"videoID":         vid.ID,
 				"displaySettings": DisplaySettings,
 				"outputFolder":    Config.OutputFolder,
@@ -168,6 +169,6 @@ func main() {
 		}
 
 		err = fHandler.Close()
-		LogHelp.LogOnError("cannot close file", map[string]interface{}{"filename": "ReportFor_" + vid.Name + ".html"}, err)
+		LogHelp.LogOnError("cannot close file", map[string]interface{}{"filename": "ReportFor_" + StatsIO.VideoNameToFilePath(vid.Name) + ".html"}, err)
 	}
 }
