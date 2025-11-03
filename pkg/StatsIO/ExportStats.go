@@ -2,6 +2,7 @@ package StatsIO
 
 import (
 	"cmp"
+	"errors"
 	"slices"
 	"time"
 )
@@ -36,17 +37,23 @@ func ExportStats(videoID int64, Dates Timeframe, Timeframe string) (Bucket []Vid
 		currentDate = currentDate.AddDate(dateVals[0], dateVals[1], dateVals[2])
 	}
 
+	if len(timestamps) == 0 {
+		return make([]VideoStat, 0), errors.New("timestamps is empty")
+	}
+
 	slices.SortFunc(timestamps, func(a, b time.Time) int {
 		return cmp.Compare(a.Unix(), b.Unix())
 	})
-	Bucket, err = collectTimestampsForID(videoID, timestamps)
 
-	if err != nil {
-		return make([]VideoStat, 0), err
+	for _, timestamp := range timestamps {
+		stat, err := requestTimestamp(timestamp, videoID)
+		if err != nil {
+			return []VideoStat{}, err
+		}
+		Bucket = append(Bucket, stat)
 	}
 
 	Bucket = prepareStatsForViewing(Bucket)
-
 	return Bucket, nil
 
 }
@@ -86,8 +93,4 @@ func prepareStatsForViewing(bucket []VideoStat) []VideoStat {
 		bucket[i+1].Views.StartPercentage = viewsCurrentPercent
 	}
 	return bucket
-}
-
-func init() {
-
 }
