@@ -92,7 +92,7 @@ func main() {
 	LogHelp.LogOnError("cannot parse language", map[string]string{"language": Config.OutputLanguage}, err)
 
 	// while the reports are being generated, handle the writing of the views.csv
-	fileHandle, localErr := os.OpenFile(filepath.Join(Config.OutputFolder, "views.csv"), os.O_RDWR|os.O_CREATE, 0600)
+	fileHandle, localErr := os.OpenFile(filepath.Join(Config.OutputFolder, "views.csv"), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if localErr != nil {
 		LogHelp.NewLog(LogHelp.Fatal, "cannot create views.csv", map[string]string{"error": localErr.Error()}).Log()
 	}
@@ -115,7 +115,7 @@ func main() {
 	}
 
 	// while the reports are being generated, output an index page.
-	fileHandler, LocalErr := os.OpenFile(filepath.Join(Config.OutputFolder, "index.html"), os.O_RDWR|os.O_CREATE, 0600)
+	fileHandler, LocalErr := os.OpenFile(filepath.Join(Config.OutputFolder, "index.html"), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if LocalErr != nil {
 		LogHelp.NewLog(LogHelp.Fatal, "cannot create index.html", map[string]string{"error": LocalErr.Error()}).Log()
 		return
@@ -141,8 +141,7 @@ func main() {
 		absFilePath, err := filepath.Abs(filePath)
 		LogHelp.LogOnError("cannot find absolute file path", map[string]string{"filePath": filePath}, err)
 
-		fHandler, err := os.OpenFile(absFilePath, os.O_RDWR|os.O_CREATE, 0600)
-		LogHelp.LogOnError("cannot open report file", map[string]interface{}{"filename": "ReportFor_" + vid.Name + ".html"}, err)
+		fHandler, err := os.OpenFile(absFilePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 		LogHelp.LogOnError("cannot open report file", map[string]interface{}{"filename": "ReportFor_" + StatsIO.VideoNameToFilePath(vid.Name) + ".html"}, err)
 		if err != nil {
 			continue
