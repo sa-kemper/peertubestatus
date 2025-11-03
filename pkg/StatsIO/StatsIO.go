@@ -60,6 +60,35 @@ func (statIO *StatsIO) Init(api *peertubeApi.ApiClient) {
 	}
 	wg.Wait()
 }
+
+func (statIO *StatsIO) ReadRawResponsesByPath(p string, i *[]peertubeApi.VideoResponse) (err error) {
+	if i == nil {
+		return errors.New("invalid input")
+	}
+	var FileBytes []byte
+	FileBytes, err = os.ReadFile(p)
+	if err != nil {
+		return err
+	}
+	versionIndex := bytes.IndexByte(FileBytes, byte('\n'))
+	if versionIndex == -1 {
+		LogHelp.NewLog(LogHelp.Error, "cannot find version header of raw data", map[string]string{"Path": p}).Log()
+		versionIndex = 0
+	}
+	decoder := json.NewDecoder(bytes.NewReader(FileBytes[versionIndex+1:]))
+	for {
+		var video peertubeApi.VideoResponse
+		err = decoder.Decode(&video)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			LogHelp.LogOnError("error parsing imported data", nil, err)
+			return
+		}
+		*i = append(*i, video)
+	}
+	return
 }
 
 var Database StatsIO
