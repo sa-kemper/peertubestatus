@@ -36,6 +36,7 @@ func init() {
 }
 
 func SendPanic(panicMail mail.PanicMail) (err error) {
+	println("[PANIC] panicMail being sent")
 	// Send to
 	var mailAddresses []*goMail.Address
 	mailAddresses, err = goMail.ParseAddressList(SmtpConf.ToAddress)
@@ -103,7 +104,7 @@ func SendMailOnFatalLog() {
 			}
 
 			if counter >= 10 {
-				_ = os.WriteFile("PANICMESSAGE.txt", []byte(LogBuffer.String()), 0600)
+				_ = os.WriteFile("PANICMESSAGE.txt", LogBuffer.Bytes(), 0600)
 				panic(err)
 			}
 			os.Exit(1)
