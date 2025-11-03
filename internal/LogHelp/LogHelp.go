@@ -137,6 +137,17 @@ func LogOnError(msg string, ctx interface{}, err error) {
 	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
 }
 
+func FatalOnError(msg string, ctx interface{}, err error) {
+	if err == nil {
+		return
+	}
+	if ctx != nil {
+		NewLog(Fatal, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
+		return
+	}
+	NewLog(Fatal, msg, map[string]interface{}{"error": err.Error()}).Log()
+}
+
 func LogOnWarn(msg string, ctx interface{}, err error) {
 	if err == nil {
 		return
