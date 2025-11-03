@@ -154,3 +154,15 @@ func LogOnWarn(msg string, ctx interface{}, err error) {
 	}
 	NewLog(Warn, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
 }
+
+// ErrorOnNotOK checks the provided bool for positive-ness if this evaluates to true, nothing is done, otherwise a error message is displayed.
+func ErrorOnNotOK(msg string, ctx interface{}, ok bool) {
+	if ok {
+		return
+	}
+	if ctx == nil {
+		NewLog(Error, msg, map[string]interface{}{"error": msg}).Log()
+		return
+	}
+	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": msg}).Log()
+}
