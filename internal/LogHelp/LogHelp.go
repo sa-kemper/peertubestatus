@@ -55,7 +55,6 @@ func (e LogEntry) Error() string {
 }
 
 func (e LogEntry) RuntimeError() {
-	return
 }
 
 func (e LogEntry) String() string {
