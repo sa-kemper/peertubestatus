@@ -42,6 +42,10 @@ p {
     margin: 5px;
 }
 
+a {
+    color: var(--color-1);
+}
+
 .container {
     max-width: 1200px; /* Limit content width */
     margin: 0 auto; /* Center the content */
