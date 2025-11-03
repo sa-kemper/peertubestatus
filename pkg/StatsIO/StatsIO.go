@@ -40,12 +40,26 @@ type StatsIO struct {
 	firstDataAvailable       time.Time
 }
 
-func (statIO *StatsIO) Init() {
+func (statIO *StatsIO) Init(api *peertubeApi.ApiClient) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		var err error
+		statIO.TimeSeriesDB, err = loadTimeSeries()
+		LogHelp.FatalOnError("cannot load time series database", nil, err)
+
+	}()
 	db, err := loadVideoDB()
 	if err == nil {
-		Database.data = &db
+		Database.data = db
 	}
 	Database.firstDataAvailable = findFirstDataAvailable()
+	if api != nil {
+		statIO.Api = api
+	}
+	wg.Wait()
+}
 }
 
 var Database StatsIO

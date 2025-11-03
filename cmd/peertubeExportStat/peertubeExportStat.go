@@ -52,7 +52,7 @@ func main() {
 	LogHelp.AlwaysQueue = true
 	go MailLog.SendMailOnFatalLog()
 
-	StatsIO.Database.Init()
+	StatsIO.Database.Init(nil)
 	videos, err := StatsIO.GetAllVideos()
 	if err != nil {
 		LogHelp.NewLog(LogHelp.Fatal, "cannot get all videos", map[string]interface{}{"errors": err, "videos": videos}).Log()

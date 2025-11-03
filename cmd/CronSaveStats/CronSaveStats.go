@@ -84,7 +84,7 @@ func main() {
 		println("error occurred during getting server config")
 		panic(err)
 	}
-	StatsIO.Database.Init()
+	StatsIO.Database.Init(PeertubeApiClient)
 	err = StatsIO.Database.ImportFromRaw(RawResponses, serverConfig.ServerVersion, collectionTime)
 
 	if err != nil {

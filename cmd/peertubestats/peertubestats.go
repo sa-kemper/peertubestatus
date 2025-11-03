@@ -68,7 +68,7 @@ func main() {
 	flag.Parse()
 	LogHelp.NewLog(LogHelp.Debug, "after parsing the program arguments the config has been changed to", map[string]interface{}{"config": config})
 
-	StatsIO.Database.Init()
+	StatsIO.Database.Init(nil)
 	StatsIO.Database.Api, err = peertubeApi.NewApiClient(apiConfig.ClientId, apiConfig.ClientSecret, apiConfig.Username, apiConfig.Password, apiConfig.Host, apiConfig.Protocol, peertubeApi.DEFAULT_RATE_LIMITS, nil)
 	if err != nil {
 		println("error occurred during initialization of API client")
