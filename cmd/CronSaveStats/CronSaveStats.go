@@ -38,14 +38,14 @@ func main() {
 
 	err = Response.ParseConfigFromEnvFile()
 	LogHelp.LogOnError("cannot parse configuration from env file", map[string]interface{}{"config": apiConfig, "smtpConfig": MailLog.SmtpConf}, err)
-	LogHelp.NewLog(LogHelp.Debug, "after parsing env file the config has been changed to", map[string]interface{}{"config": apiConfig})
+	LogHelp.NewLog(LogHelp.Debug, "after parsing env file the config has been changed to", map[string]interface{}{"config": apiConfig}).Log()
 
 	err = Response.ParseConfigFromEnvironment()
 	LogHelp.LogOnError("cannot parse configuration from environment", map[string]interface{}{"config": apiConfig}, err)
-	LogHelp.NewLog(LogHelp.Debug, "after parsing environment variables the config has been changed to", map[string]interface{}{"config": apiConfig, "smtpConfig": MailLog.SmtpConf})
+	LogHelp.NewLog(LogHelp.Debug, "after parsing environment variables the config has been changed to", map[string]interface{}{"config": apiConfig, "smtpConfig": MailLog.SmtpConf}).Log()
 
 	flag.Parse()
-	LogHelp.NewLog(LogHelp.Debug, "after parsing the program arguments the config has been changed to", map[string]interface{}{"config": apiConfig, "smtpConfig": MailLog.SmtpConf})
+	LogHelp.NewLog(LogHelp.Debug, "after parsing the program arguments the config has been changed to", map[string]interface{}{"config": apiConfig, "smtpConfig": MailLog.SmtpConf}).Log()
 
 	go MailLog.SendMailOnFatalLog()
 
@@ -77,6 +77,7 @@ func main() {
 		println("error occurred during listing of videos")
 		panic(err)
 	}
+
 	serverConfig, err := PeertubeApiClient.Config()
 	if err != nil {
 		LogHelp.NewLog(LogHelp.Fatal, "error occurred during getting server config", map[string]interface{}{"error": err.Error()})
