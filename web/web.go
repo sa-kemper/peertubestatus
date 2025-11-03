@@ -20,6 +20,8 @@ import (
 
 //go:embed css/*
 var CssFileFS embed.FS
+var ServeStaticHTTPHandler func(ResponseWriter http.ResponseWriter, Request *http.Request)
+var Templates *template.Template
 
 //var CssFileFS, _ = fs.Sub(cssFs, "css")
 
@@ -133,6 +135,10 @@ func init() {
 	if Templates == nil {
 		log.Fatal("Templates not found")
 	}
+	stat, err = os.Stat("static")
+	if err == nil && stat.IsDir() {
+		ServeStaticHTTPHandler = http.StripPrefix("/static/", http.FileServer(http.Dir("static"))).ServeHTTP
+	} else {
+		ServeStaticHTTPHandler = http.StripPrefix("/static", http.FileServerFS(CssFileFS)).ServeHTTP
+	}
 }
-
-var Templates *template.Template

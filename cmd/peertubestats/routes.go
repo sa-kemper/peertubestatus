@@ -20,7 +20,7 @@ import (
 var routingTable = map[string]func(http.ResponseWriter, *http.Request){
 	"/":                        referToIndex,
 	"/Video":                   VideoIndex,
-	"/static/":                 http.StripPrefix("/static", http.FileServerFS(web.CssFileFS)).ServeHTTP,
+	"/static/":                 web.ServeStaticHTTPHandler,
 	"/Video/{id}":              singleVideoPage,
 	"/Video/csv":               csvDownload,
 	"/lazy-static/thumbnails/": http.FileServer(http.Dir(path.Join(StatsIO.Database.DataFolder, ""))).ServeHTTP,
