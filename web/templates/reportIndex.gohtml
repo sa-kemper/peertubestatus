@@ -1,0 +1,93 @@
+{{define "reportIndex"}}
+    <!DOCTYPE html>
+    <html lang="{{ if translate "languagecode"}}{{ translate "languagecode"}}{{else}}en{{end}}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ translate "Video Reports Index"}}</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+        <link rel="stylesheet" href="static/style.css">
+        <style>
+            .video-card-grid {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 1rem;
+                padding: 1rem;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                background: #fff;
+            }
+            .video-card-grid .thumbnail {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .video-card-grid .metadata-grid {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            .video-card-grid .video-details {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .video-card-grid .report-link {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body data-theme="light">
+    <div class="action-buttons no-print">
+        <button class="action-button" onclick="window.print()">
+            <i class="fas fa-print"></i>
+            <span>{{translate "Print"}}</span>
+        </button>
+        <a href="views.csv" class="action-button" download>
+            <i class="fas fa-file-excel"></i>
+            <span>{{ translate "Open in Excel"}}</span>
+        </a>
+    </div>
+
+    <div class="container">
+        <h1>{{ translate "Video Reports" }}</h1>
+        <section class="videos-list">
+            {{ range .Videos }}
+                <div class="video-card-grid">
+                    <img src="{{ .ThumbnailPath}}" alt="{{translate "Video Thumbnail"}}"
+                         class="thumbnail">
+                    <div class="metadata-grid">
+                        <div class="video-details">
+                            <a href="https://{{flagGet "api-host"}}/w/{{ .ShortUUID }}">
+                                <h2>{{ .Name }}</h2>
+                            </a>
+                            <a href="{{.Channel.URL}}" style="text-decoration: none;">
+                                <div class="creator">
+                                    <img src="{{if gt (len .Channel.Avatars) 0}}{{ (index .Channel.Avatars 0).Path }}{{end}}"
+                                         alt="{{ textInitials .Channel.Name}}"
+                                         class="avatar">
+                                    <span>{{ .Channel.Name }}</span>
+                                </div>
+                            </a>
+                            <p>{{translate "Upload Date"}}: {{ .CreatedAt }}</p>
+                            <p class="stats">{{translate "Views"}}: {{ .Views}} | {{translate "Likes"}}: {{ .Likes }}</p>
+                        </div>
+                        <a href="ReportFor_{{ VideoNameToFilePath .Name }}.html" class="report-link">
+                            <button class="filter-button">
+                                <i class="fas fa-chart-line"></i>
+                                <span>{{ translate "View Full Report" }}</span>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            {{ end }}
+        </section>
+    </div>
+    </body>
+    </html>
+{{end}}
