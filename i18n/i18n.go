@@ -12,6 +12,11 @@ import (
 
 //go:embed locales/*.mo
 var localesFS embed.FS
+
+// Languages is a map from ISO639 to gettext "MO"
+// Please call it like this:
+// var mo, found := Languages[langID]
+// if found { var Translate = mo.Get } // This will make it easier to maintain translatable strings.
 var Languages map[string]*gotext.Mo
 
 func init() {
