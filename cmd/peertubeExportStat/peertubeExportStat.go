@@ -84,7 +84,17 @@ func main() {
 
 	go func() {
 		styleBytes, err := web.CssFileFS.ReadFile("css/style.css")
-		err = os.WriteFile(filepath.Join(Config.OutputFolder, "static", "style.css"), styleBytes, 0600)
+		LogHelp.LogOnError("cannot read style css file", map[string]interface{}{"outputFolder": Config.OutputFolder}, err)
+		// check if overwrite folder exists
+		overrideStyleBytes, err := os.ReadFile(filepath.Join("static", "style.css"))
+		if !os.IsNotExist(err) {
+			LogHelp.LogOnError("cannot read override css file", nil, err)
+		}
+		if len(overrideStyleBytes) > 0 {
+			err = os.WriteFile(filepath.Join(Config.OutputFolder, "static", "style.css"), overrideStyleBytes, 0600)
+		} else {
+			err = os.WriteFile(filepath.Join(Config.OutputFolder, "static", "style.css"), styleBytes, 0600)
+		}
 		LogHelp.LogOnError("cannot create static style directory", map[string]interface{}{"outputFolder": Config.OutputFolder}, err)
 	}()
 
