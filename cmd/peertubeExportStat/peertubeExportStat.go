@@ -106,7 +106,11 @@ func main() {
 	if localErr != nil {
 		LogHelp.NewLog(LogHelp.Fatal, "cannot create views.csv", map[string]string{"error": localErr.Error()}).Log()
 	}
-	defer fileHandle.Close()
+	defer func() {
+		if fileHandle != nil {
+			LogHelp.LogOnError("cannot close views.csv", nil, fileHandle.Close())
+		}
+	}()
 	writer := csv.NewWriter(fileHandle)
 	defer writer.Flush()
 	localErr = writer.WriteAll(StatsIO.CsvGenerate(StatsIO.CsvGenerateParameters{
