@@ -127,8 +127,8 @@ func preCreationPostDeletionShortcut(ts time.Time, metadata peertubeApi.VideoDat
 }
 
 func getStatOfDate(ts time.Time, id int64) (result VideoStat, found bool) {
-	if _, err := os.Stat(Database.getRawFilePath(ts)); !os.IsNotExist(err) {
-		videos := Database.ReadRawResponses(ts)
+	if _, err := os.Stat(getRawFilePath(ts)); !os.IsNotExist(err) {
+		videos := readRawResponses(ts)
 		if len(videos) < 1 {
 			// cannot read data
 			LogHelp.NewLog(LogHelp.Error, "stat data was either not processed or is malformed", map[string]interface{}{"requestTimestamp": ts, "id": id}).Log()
