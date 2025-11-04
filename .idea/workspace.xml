@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="cdaaad49-d920-4f96-948e-509d45de3be9" name="Changes" comment="Fixup singleVideoExportedReport.gohtml thumbnails were loaded from the instance, and not archived.">
+      <change afterPath="$PROJECT_DIR$/.idea/peertubestats.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/reportIndex.gohtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copyright/SamuelKemperApache.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/golangGetTextTest.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/go/go1.25.3" />
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Samuel Kemper &lt;sk.privat0@yandex.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="32iyCyw6FKAzf4b8Jk7VRBFvJdx" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build github.com/sa-kemper/peertubestats/cmd/CronSaveStats.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubeExportStat.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubestats.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestParseEnvLine in github.com/sa-kemper/peertubestats/cmd/peertubestats.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestStatsIO_mergeVideoDB/Simple_addition in github.com/sa-kemper/peertubestats/pkg/StatsIO.executor&quot;: &quot;Debug&quot;,
+    &quot;Go Test.Test_extractValFromEnvBytes in github.com/sa-kemper/peertubestats/cmd/peertubestats.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.Test_mergeVideoDB in github.com/sa-kemper/peertubestats/pkg/StatsIO.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.Test_toQueryParams in github.com/sa-kemper/peertubestats/pkg/peertubeapi.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.Test_toQueryParams/User_Struct_Query_Params in github.com/sa-kemper/peertubestats/pkg/peertubeapi.executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;ShowUsagesActions.previewPropertyKey&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/samuel/workspace/peertubestats/Data/2025/10&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="GoMoveDeclarationDialog.RECENT_KEY">
+      <recent name="$PROJECT_DIR$/pkg/StatsIO" />
+      <recent name="$PROJECT_DIR$/internal/Response" />
+      <recent name="$PROJECT_DIR$/internal/MailLog" />
+      <recent name="$PROJECT_DIR$/web" />
+      <recent name="$PROJECT_DIR$/pkg/peertubeapi" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Data/2025/10" />
+      <recent name="$PROJECT_DIR$/web/templates" />
+      <recent name="$PROJECT_DIR$/Data/2025/09" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/Response" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="GoApplicationRunConfiguration" />
+      </set>
+    </option>
+    <option name="configurationStatuses">
+      <map>
+        <entry key="GoApplicationRunConfiguration">
+          <value>
+            <map>
+              <entry key="go build github.com/sa-kemper/peertubestats/cmd/CronSaveStats" value="STOPPED" />
+              <entry key="go build github.com/sa-kemper/peertubestats/cmd/peertubeExportStat" value="STOPPED" />
+              <entry key="go build github.com/sa-kemper/peertubestats/cmd/peertubestats" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubestats">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build github.com/sa-kemper/peertubestats/cmd/CronSaveStats" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/sa-kemper/peertubestats/cmd/CronSaveStats" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/CronSaveStats/CronSaveStats.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build github.com/sa-kemper/peertubestats/cmd/peertubeExportStat" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/sa-kemper/peertubestats/cmd/peertubeExportStat" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/peertubeExportStat/peertubeExportStat.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build github.com/sa-kemper/peertubestats/cmd/peertubestats" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/sa-kemper/peertubestats/cmd/peertubestats" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/peertubestats/peertubestats.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestStatsIO_mergeVideoDB/Simple_addition in github.com/sa-kemper/peertubestats/pkg/StatsIO" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$/pkg/StatsIO" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestStatsIO_mergeVideoDB\E$/^\QSimple_addition\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Test_mergeVideoDB in github.com/sa-kemper/peertubestats/pkg/StatsIO" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$/pkg/StatsIO" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTest_mergeVideoDB\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="peertubestats" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/CronSaveStats" />
+      <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubeExportStat" />
+      <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubestats" />
+      <item itemvalue="Go Test.TestStatsIO_mergeVideoDB/Simple_addition in github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+      <item itemvalue="Go Test.Test_mergeVideoDB in github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubestats" />
+        <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/CronSaveStats" />
+        <item itemvalue="Go Test.Test_mergeVideoDB in github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+        <item itemvalue="Go Test.TestStatsIO_mergeVideoDB/Simple_addition in github.com/sa-kemper/peertubestats/pkg/StatsIO" />
+        <item itemvalue="Go Build.go build github.com/sa-kemper/peertubestats/cmd/peertubeExportStat" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-f466f9b0953e-146d08934cbf-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-252.27397.100" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-GO-252.27397.100" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="cdaaad49-d920-4f96-948e-509d45de3be9" name="Changes" comment="" />
+      <created>1757917564387</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757917564387</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Implement LogHelp.go -&gt; ErrorOnNotOK. Checks if the provided success bool is positive and logs in the opposite case a provided message and context." />
+    <MESSAGE value="remove a redundant return statement" />
+    <MESSAGE value="Introduce a function to format the file name of video reports. This ensures that the file names are allways valid." />
+    <MESSAGE value="Change the file open options to always clear the file before writing." />
+    <MESSAGE value="Rewrite mergeVideoDB" />
+    <MESSAGE value="Add a CsvGenerate function, which obtains and translates the video data from the database" />
+    <MESSAGE value="Remove the collectTimestampsForID.go file, as it is not needed anymore." />
+    <MESSAGE value="Make static check happy for MailLog.go" />
+    <MESSAGE value="Allow static files to be overwritten by the administrator of peertubestats" />
+    <MESSAGE value="Abstract the stored videos into a sync.map, this makes it straight forward to use it, and concurrently safe." />
+    <MESSAGE value="Add API implementation for Video metadata of a single video." />
+    <MESSAGE value="Add API implementation for obtaining a thumbnail." />
+    <MESSAGE value="Handle error for loading css file + Respect override css file" />
+    <MESSAGE value="Refactor StatsIO import to stateless functions, use API for thumbnails, and enhance DB merging with deleted entries." />
+    <MESSAGE value="Add Time series database implementation for the Video stats." />
+    <MESSAGE value="Use a different style of storing video metadata" />
+    <MESSAGE value="Remove the findClosestTimestamp function, as it is not used anyway." />
+    <MESSAGE value="Use the newly added Time series db for timestamp lookups, keep the older methode on misses." />
+    <MESSAGE value="Move variable declaration to the head of the file" />
+    <MESSAGE value="Adjust the pre creation post deletion shortcut to work with the new video metadata save system" />
+    <MESSAGE value="Adjust the getStatOfDate function to work with the now stateless readRawResponses function" />
+    <MESSAGE value="Fix importing issue" />
+    <MESSAGE value="Rename VideoMetadata.go into VideoDatabase.go + Port a few functions to be in the new file" />
+    <MESSAGE value="Fixup singleVideoExportedReport.gohtml template" />
+    <MESSAGE value="Fixup singleVideoExportedReport.gohtml thumbnails were loaded from the instance, and not archived." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixup singleVideoExportedReport.gohtml thumbnails were loaded from the instance, and not archived." />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/StatsIO/VideoDatabase.go</url>
+          <line>22</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/peertubeApi/ListVideos.go</url>
+          <line>79</line>
+          <option name="timeStamp" value="48" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/MailLog/MailLog.go</url>
+          <line>37</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/MailLog/MailLog.go</url>
+          <line>85</line>
+          <option name="timeStamp" value="87" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/go/go1.25.2/src/path/filepath/path.go</url>
+          <line>331</line>
+          <option name="timeStamp" value="98" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/StatsIO/ImportStats.go</url>
+          <line>60</line>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/peertubeApi/GetVideoMetadata.go</url>
+          <line>9</line>
+          <option name="timeStamp" value="120" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/StatsIO/timeSeries.go</url>
+          <line>194</line>
+          <option name="timeStamp" value="130" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/StatsIO/timeSeries.go</url>
+          <line>331</line>
+          <option name="timeStamp" value="139" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/StatsIO/timeSeries.go</url>
+          <line>254</line>
+          <option name="timeStamp" value="140" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
