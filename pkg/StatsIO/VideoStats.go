@@ -25,6 +25,32 @@ type Stat struct {
 // requestTimestamp will resolve a reasonable VideoStat for the given available ones and the requested one
 // It throws an error on critical issues e.g. the whole year not being available or the years object is invalid
 func requestTimestamp(ts time.Time, id int64) (result VideoStat, err error) {
+	var lookupResult LikeView
+	dll, found := Database.TimeSeriesDB.Video.Load(id)
+	if !found {
+		return fallbackRequestTimestamp(ts, id)
+	}
+	doubleLinkedListValue, ok := dll.(*DoubleLinkedList)
+	if !ok {
+		LogHelp.NewLog(LogHelp.Fatal, "cannot load double linked list from time series database", map[string]string{"id": strconv.FormatInt(id, 10), "timestamp": ts.Format(time.RFC3339)}).Log()
+		// return will not be reached.
+		return fallbackRequestTimestamp(ts, id)
+	}
+
+	lookupResult = lookupTimeSeriesSingle(doubleLinkedListValue, ts)
+	return VideoStat{
+		Time: ts,
+		Likes: Stat{
+			Data: lookupResult.Likes,
+		},
+		Views: Stat{
+			Data: lookupResult.Views,
+		},
+	}, nil
+}
+
+func fallbackRequestTimestamp(ts time.Time, id int64) (result VideoStat, err error) {
+
 	if ts.IsZero() {
 		return VideoStat{}, errors.New("requestTimestamp called, but no timestamp provided")
 	}
@@ -36,15 +62,9 @@ func requestTimestamp(ts time.Time, id int64) (result VideoStat, err error) {
 			Views: Stat{Data: 0},
 		}, nil
 	}
-
-	// The data is not available. AUTO REPAIR!
-
 	// handle pre video creation and post video deletion
-	metadata, err := VideoMetadata(id)
-	if err != nil {
-		// video was not found
-		return VideoStat{}, err
-	}
+	val, _ := Database.data.Load(id)
+	metadata := val.(peertubeApi.VideoData)
 
 	result, err = preCreationPostDeletionShortcut(ts, metadata)
 	if !result.Time.IsZero() { // the timestamp was found and was returned
