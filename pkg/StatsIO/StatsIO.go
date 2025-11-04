@@ -1,43 +1,35 @@
 package StatsIO
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"flag"
+	"io"
 	"os"
 	"path"
 	"sync"
 	"time"
 
+	"github.com/sa-kemper/peertubestats/internal/LogHelp"
 	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
-type VideoDatabase map[int64]peertubeApi.VideoData
-
-func (db *VideoDatabase) VideoIsDeleted(video peertubeApi.VideoData) *bool {
-	dletedDB, err := loadDeletedDB()
-	if err != nil {
-		return nil
-	}
-	_, deleted := dletedDB[video.ID]
-	return &deleted
-}
-
-func (db *VideoDatabase) VideoExists(data peertubeApi.VideoData) (exists bool) {
-	_, exists = (*db)[data.ID]
-	return
-}
-
-func (db *VideoDatabase) VideoAdd(data peertubeApi.VideoData) {
-	(*db)[data.ID] = data
-}
-
 type StatsIO struct {
-	DataFolder               string
-	StatsMissTolerance       int
-	data                     *VideoDatabase
-	dataMutex                sync.RWMutex
+	// DataFolder is the path where the data is stored.
+	DataFolder         string
+	StatsMissTolerance int
+	// data is a database mapping from id to video metadata.
+	data *sync.Map
+	// CacheInvalidationSeconds is used to invalidate the db in a long-running system such as the webserver, this enables us to never return outdated data
 	CacheInvalidationSeconds int
 	Api                      *peertubeApi.ApiClient
-	firstDataAvailable       time.Time
+	// firstDataAvailable is the timestamp of the earliest video metadata available.
+	firstDataAvailable time.Time
+	TimeSeriesDB       *TimeSeriesDatabase
+	// deletedDb maps from video id to a time.Time
+	deletedDb        sync.Map
+	StatIOMaxThreads int
 }
 
 func (statIO *StatsIO) Init(api *peertubeApi.ApiClient) {
@@ -94,6 +86,7 @@ func (statIO *StatsIO) ReadRawResponsesByPath(p string, i *[]peertubeApi.VideoRe
 var Database StatsIO
 
 func init() {
+	flag.IntVar(&Database.StatIOMaxThreads, "stat-io-max-threads", 10, "max number of threads to use")
 	flag.StringVar(&Database.DataFolder, "data-folder", "./Data", "Folder containing video stats")
 	flag.IntVar(&Database.StatsMissTolerance, "miss-tolerance", 0, "If a searched statistic is missing, this specifies the tolerance of days of a mismatch before an error.")
 	flag.IntVar(&Database.CacheInvalidationSeconds, "cache-valid-seconds", 1*60*60*25, "The number of seconds the video database cache is valid, By default a bit more than a day")
@@ -121,7 +114,8 @@ func findFirstDataAvailable() time.Time {
 
 	// find the oldest day
 	for {
-		if _, err := os.Stat(path.Join(Database.DataFolder, currentDate.Format("2006"), currentDate.Format("01"))); os.IsNotExist(err) {
+		stat, _ := os.Stat(path.Join(Database.DataFolder, currentDate.Format("2006"), currentDate.Format("01"), currentDate.Format("02")+".json"))
+		if stat == nil {
 			break
 		}
 		currentDate = currentDate.AddDate(0, 0, -1)
@@ -129,4 +123,57 @@ func findFirstDataAvailable() time.Time {
 	currentDate = currentDate.AddDate(0, 0, 1)
 	return currentDate
 
+}
+
+func saveVideoDB(Db *sync.Map, ts time.Time) error {
+	var fileDB = make(map[int64]peertubeApi.VideoData)
+	Db.Range(func(k, v interface{}) (ok bool) {
+		fileDB[k.(int64)], ok = v.(peertubeApi.VideoData)
+		LogHelp.ErrorOnNotOK("cannot add key value pair to map", nil, ok)
+		return ok
+	})
+	monthHandle, err := os.OpenFile(Database.DataFolder+string(os.PathSeparator)+ts.Format("2006")+string(os.PathSeparator)+ts.Format("1")+".json", os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+	defer monthHandle.Close()
+
+	yearHandle, err := os.OpenFile(Database.DataFolder+string(os.PathSeparator)+ts.Format("2006")+".json", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		return err
+	}
+	defer yearHandle.Close()
+
+	fullHandle, err := os.OpenFile(Database.DataFolder+string(os.PathSeparator)+"videoDB.json", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		return err
+	}
+	defer fullHandle.Close()
+
+	byts, err := json.Marshal(fileDB)
+	if err != nil {
+		return err
+	}
+
+	var monthErr, yearErr, fullErr error
+	wg := sync.WaitGroup{}
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+
+		_, monthErr = monthHandle.Write(bytes.Clone(byts))
+	}()
+	go func() {
+		defer wg.Done()
+		_, yearErr = yearHandle.Write(bytes.Clone(byts))
+	}()
+	go func() {
+		defer wg.Done()
+		_, fullErr = fullHandle.Write(bytes.Clone(byts))
+	}()
+	wg.Wait()
+	if monthErr != nil || yearErr != nil || fullErr != nil {
+		return errors.Join(errors.New("failed to save video db"), monthErr, yearErr, fullErr)
+	}
+	return nil
 }

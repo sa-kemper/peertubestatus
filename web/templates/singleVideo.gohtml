@@ -30,12 +30,12 @@
         <section class="video-metadata">
             <div class="metadata-grid">
                 <div class="thumbnail-container">
-                    <img src="https://{{flagGet "api-host"}}{{.Video.ThumbnailPath}}"
+                    <img src="{{.Video.ThumbnailPath}}"
                          alt="{{translate "Video Thumbnail"}}" class="thumbnail">
                 </div>
                 <div class="details-container">
                     <div class="creator">
-                        <img src="{{if le (len .Video.Channel.Avatars) 1}} {{else}}{{ (index .Video.Channel.Avatars 0).Path }}{{end}}"
+                        <img src="{{if le (len .Video.Channel.Avatars) 1}}{{else}}{{ (index .Video.Channel.Avatars 0).Path }}{{end}}"
                              alt="{{ textInitials .Channel.Name}}" class="avatar">
                         <a href="{{.Video.Channel.URL}}"><span>{{.Video.Channel.Name}}</span></a>
                     </div>
