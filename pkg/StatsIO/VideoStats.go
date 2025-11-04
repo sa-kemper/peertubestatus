@@ -108,37 +108,6 @@ func preCreationPostDeletionShortcut(ts time.Time, metadata peertubeApi.VideoDat
 	return VideoStat{}, nil
 }
 
-// findClosestTimestamp will resolve the closest available statistic entry at the given ts (timestamp)
-// the tolerance of days being between the ts requested and the found ts can be configured either using the Database struct of the StatsIO package or during execution with a flag.
-//func findClosestTimestamp(ts time.Time, id int64) (closestStat VideoStat, err error) { // TODO: REIMPLEMENT!
-//	var ok bool
-//	// Look in the past and in the future relative to the requested timestamp for a replacement of the missing data.
-//	for i := 1; i < Database.StatsMissTolerance || !ok; i++ {
-//		// left
-//		closestStat, ok = getStatOfDate(ts, id)
-//		if ok {
-//			return
-//		}
-//		// handle year out of bounds past
-//		if targetTs := ts.AddDate(0, 0, -i); targetTs.Before(year.StartDate) {
-//			closestStat, ok = years[targetTs.Year()].Stats[statsFormat(targetTs)]
-//			if ok {
-//				return
-//			}
-//		}
-//		// right
-//		closestStat, ok = year.Stats[statsFormat(ts.AddDate(0, 0, i))]
-//		if ok {
-//			return closestStat, nil
-//		}
-//		if targetTs := ts.AddDate(0, 0, -i); year.EndDate.Before(targetTs) {
-//			closestStat, ok = years[targetTs.Year()].Stats[statsFormat(targetTs)]
-//		}
-//	}
-//
-//	return closestStat, nil
-//}
-
 func getStatOfDate(ts time.Time, id int64) (result VideoStat, found bool) {
 	if _, err := os.Stat(Database.getRawFilePath(ts)); !os.IsNotExist(err) {
 		videos := Database.ReadRawResponses(ts)
