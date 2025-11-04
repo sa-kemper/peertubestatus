@@ -41,16 +41,15 @@
                     <p><strong>{{translate "Category"}}:</strong> {{.Video.Category.Label}}</p>
                     <p><strong>{{translate "License"}}:</strong> {{.Video.Licence.Label}}</p>
                     <p><strong>{{translate "Language"}}:</strong> {{.Video.Language.Label}}</p>
-                    <p><strong>{{translate "Is Live"}}
-                            :</strong> {{if .Video.IsLive}}{{translate "Yes"}}{{else}}{{translate "No"}}{{end}}</p>
+                    <p><strong>{{translate "Is Live"}}:</strong> {{if .Video.IsLive}}{{translate "Yes"}}{{else}}{{translate "No"}}{{end}}</p>
                     {{if .Video.LiveSchedules}}
-                        <p><strong>{{translate "Live Schedules"}}:</strong>
+                        <p><strong>{{translate "Live Schedules"}}:</strong></p>
                         <ul>
                             {{range .Video.LiveSchedules}}
                                 <li>{{ formatDate .StartAt }}</li>
                             {{end}}
                         </ul>
-                        </p>
+
                     {{end}}
                 </div>
             </div>
