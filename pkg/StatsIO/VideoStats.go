@@ -104,26 +104,24 @@ func preCreationPostDeletionShortcut(ts time.Time, metadata peertubeApi.VideoDat
 		}, err
 	}
 
-	dltdb, err := loadDeletedDB()
-	if err != nil {
-		return VideoStat{}, err
+	deletedVal, inDeletedDB := Database.deletedDb.Load(metadata.ID)
+	if !inDeletedDB {
+		return VideoStat{}, nil
 	}
-	if videoDeleted, wasDeleted := dltdb[metadata.ID]; wasDeleted {
-		if ts.After(videoDeleted.Deleted) { // A deleted video will not change its stats, use the latest stats forever.
-			return VideoStat{
-				Time: ts,
-				Likes: Stat{
-					StartPercentage: 0,
-					EndPercentage:   0,
-					Data:            metadata.Likes,
-				},
-				Views: Stat{
-					StartPercentage: 0,
-					EndPercentage:   0,
-					Data:            metadata.Views,
-				},
-			}, nil
-		}
+	if deletedVal.(time.Time).Before(ts) && !deletedVal.(time.Time).IsZero() {
+		return VideoStat{
+			Time: ts,
+			Likes: Stat{
+				StartPercentage: 0,
+				EndPercentage:   0,
+				Data:            metadata.Likes,
+			},
+			Views: Stat{
+				StartPercentage: 0,
+				EndPercentage:   0,
+				Data:            metadata.Views,
+			},
+		}, nil
 	}
 	return VideoStat{}, nil
 }
