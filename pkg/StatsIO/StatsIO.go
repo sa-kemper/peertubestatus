@@ -15,6 +15,8 @@ import (
 	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 )
 
+var Database StatsIO
+
 type StatsIO struct {
 	// DataFolder is the path where the data is stored.
 	DataFolder         string
@@ -83,8 +85,6 @@ func (statIO *StatsIO) ReadRawResponsesByPath(p string, i *[]peertubeApi.VideoRe
 	return
 }
 
-var Database StatsIO
-
 func init() {
 	flag.IntVar(&Database.StatIOMaxThreads, "stat-io-max-threads", 10, "max number of threads to use")
 	flag.StringVar(&Database.DataFolder, "data-folder", "./Data", "Folder containing video stats")
@@ -122,5 +122,4 @@ func findFirstDataAvailable() time.Time {
 	}
 	currentDate = currentDate.AddDate(0, 0, 1)
 	return currentDate
-
 }
