@@ -14,6 +14,7 @@ import (
 type CsvGenerateParameters struct {
 	Videos          []peertubeApi.VideoData
 	DisplaySettings templates.FrontPageRequest
+	TargetLang      string
 	Scope           struct {
 		Views bool
 		Likes bool
@@ -22,7 +23,15 @@ type CsvGenerateParameters struct {
 
 func CsvGenerate(parameters CsvGenerateParameters) (csvData [][]string) {
 	csvData = make([][]string, len(parameters.Videos)+1)
-	var Mo, found = i18n.Languages[flag.Lookup("output-language").Value.String()]
+
+	var targetLang string
+	if outputFlag := flag.Lookup("output-language"); outputFlag != nil {
+		targetLang = outputFlag.Value.String()
+	}
+	if parameters.TargetLang != "" {
+		targetLang = parameters.TargetLang
+	}
+	var Mo, found = i18n.Languages[targetLang]
 	var Translate = func(id string, vars ...interface{}) string { return id }
 
 	if !found {

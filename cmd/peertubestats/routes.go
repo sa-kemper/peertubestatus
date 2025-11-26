@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"net/http"
 	"os"
 	"path"
@@ -9,12 +10,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sa-kemper/peertubestats/i18n"
 	"github.com/sa-kemper/peertubestats/internal/LogHelp"
 	"github.com/sa-kemper/peertubestats/internal/Response"
 	"github.com/sa-kemper/peertubestats/pkg/StatsIO"
 	"github.com/sa-kemper/peertubestats/pkg/peertubeApi"
 	"github.com/sa-kemper/peertubestats/web"
 	"github.com/sa-kemper/peertubestats/web/templates"
+	"golang.org/x/text/language"
 )
 
 var routingTable = map[string]func(http.ResponseWriter, *http.Request){
@@ -32,6 +35,24 @@ func referToIndex(writer http.ResponseWriter, _ *http.Request) {
 }
 
 func csvDownload(writer http.ResponseWriter, request *http.Request) {
+	AcceptLanguage := request.Header.Get("Accept-Language")
+	tag, _, err := language.ParseAcceptLanguage(AcceptLanguage)
+	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": AcceptLanguage}, err)
+	for _, langTag := range tag {
+		_, ok := i18n.Languages[langTag.String()]
+		if ok {
+			AcceptLanguage = langTag.String()
+			err = nil
+			break
+		}
+		err = errors.New("could not find a suitable language")
+	}
+
+	if err != nil {
+		AcceptLanguage = "en"
+		err = nil
+	}
+
 	videos, err := StatsIO.GetAllVideos()
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -43,6 +64,7 @@ func csvDownload(writer http.ResponseWriter, request *http.Request) {
 	data := StatsIO.CsvGenerate(StatsIO.CsvGenerateParameters{
 		Videos:          videos,
 		DisplaySettings: requestParameters,
+		TargetLang:      AcceptLanguage,
 		Scope: struct {
 			Views bool
 			Likes bool
@@ -111,6 +133,34 @@ func VideoIndex(writer http.ResponseWriter, request *http.Request) {
 			}
 		}
 	}
+	var summaryBucket []StatsIO.VideoStat
+	for _, video := range Videos {
+		currentBucket, err := StatsIO.ExportStats(video.ID, FrontPageForm.Dates, FrontPageForm.Timeframe)
+		if err != nil {
+			LogHelp.LogOnError("cannot export stats", map[string]interface{}{"VideoID": video.ID}, err)
+			return
+		}
+		if len(summaryBucket) == 0 {
+			summaryBucket = make([]StatsIO.VideoStat, len(currentBucket))
+		}
 
-	utility.ReplyTemplateWithData(writer, request, "index", map[string]interface{}{"Request": FrontPageForm, "Videos": Videos})
+		for index, val := range currentBucket {
+			if stat := summaryBucket[index]; stat.Time.IsZero() {
+				summaryBucket[index] = val
+				continue
+			}
+			summaryBucket[index].Views.Data += val.Views.Data
+			summaryBucket[index].Likes.Data += val.Likes.Data
+		}
+	}
+
+	summaryBucket = StatsIO.PrepareStatsBucketWithAverages(summaryBucket)
+	TotalViews := summaryBucket[max(0, len(summaryBucket)-1)].Views.Data
+	TotalLikes := summaryBucket[max(0, len(summaryBucket)-1)].Likes.Data
+	utility.ReplyTemplateWithData(writer, request, "index", map[string]interface{}{"Request": FrontPageForm, "Videos": Videos, "Summary": struct {
+		Chart         []StatsIO.VideoStat
+		TotalViews    int64
+		TotalLikes    int64
+		LikeViewRatio float64
+	}{Chart: summaryBucket, TotalViews: TotalViews, TotalLikes: TotalLikes, LikeViewRatio: float64(TotalLikes) / float64(max(1, TotalViews))}})
 }

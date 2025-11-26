@@ -56,6 +56,76 @@
             </noscript>
         </form>
 
+        <div class="summary-card">
+            <div class="summary-header">
+                <h2>{{ translate "Total Summary" }}</h2>
+                <p class="summary-period">
+                    {{ if eq (index . "Request").Timeframe "Daily" }}{{ translate "Daily" }}
+                    {{ else if eq (index . "Request").Timeframe "Monthly" }}{{ translate "Monthly" }}
+                    {{ else }}{{ translate "Yearly" }}{{ end }}
+                    {{ translate "from" }} {{ formatDate .Request.Dates.StartDate }} {{ translate "to" }} {{ formatDate .Request.Dates.EndDate }}
+                    {{ with (index . "Request").Query }}
+                        — {{ translate "Search" }}: “{{ . }}”
+                    {{ end }}
+                </p>
+            </div>
+
+            <div class="summary-stats">
+                <div class="stat">
+                    <i class="fas fa-eye icon"></i>
+                    <div class="stat-value" style="color: var(--color-2)">{{ .Summary.TotalViews }}</div>
+                    <div class="stat-label">{{ translate "Total Views" }}</div>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-heart icon"></i>
+                    <div class="stat-value" style="color: var(--color-1)">{{ .Summary.TotalLikes }}</div>
+                    <div class="stat-label">{{ translate "Total Likes" }}</div>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-percentage icon"></i>
+                    <div class="stat-value">{{ printf "%.2f" .Summary.LikeViewRatio }}</div>
+                    <div class="stat-label">{{ translate "Like/View Ratio" }}</div>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-video icon"></i>
+                    <div class="stat-value">{{ len .Videos }}</div>
+                    <div class="stat-label">{{ translate "Videos Shown" }}</div>
+                </div>
+            </div>
+            <div class="chart-section">
+                <h2 class="chart-title">{{ translate "Video Statistics Overview" }}</h2>
+                <p class="chart-description">{{ translate "This chart displays the sum of views and likes over time for all your videos." }}</p>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <table class="charts-css line multiple show-heading show-labels show-primary-axis show-data-axes show-10-secondary-axes">
+                            <caption>{{ translate "Views and Likes Over Time" }}</caption>
+                            <thead>
+                            <tr>
+                                <th scope="col">{{ translate "Date" }}</th>
+                                <th scope="col">{{ translate "Views" }}</th>
+                                <th scope="col">{{ translate "Likes" }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{ range .Summary.Chart }}
+                                <tr>
+                                    <th scope="row">{{ formatDate .Time}}</th>
+                                    <td style="--start: {{ .Likes.StartPercentage}}; --end: {{ .Likes.EndPercentage}}; --color: var(--color-1)">
+                                        <span class="data">{{ .Likes.Data }}</span>
+                                    </td>
+                                    <td style="--start: {{.Views.StartPercentage}}; --end: {{.Views.EndPercentage}}; --color: var(--color-2)">
+                                        <span class="data">{{ .Views.Data }}</span>
+                                    </td>
+                                </tr>
+                            {{ end }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <section class="videos-list">
             <ul class="charts-css legend">
                 <li style="--color: var(--color-1)">{{translate "Likes"}}</li>
@@ -65,6 +135,7 @@
                 {{ template "videoCard" dict "Video" . "Request" $.Request }}
             {{ end}}
         </section>
+
     </div>
     </body>
     </html>
