@@ -94,3 +94,7 @@ func prepareStatsForViewing(bucket []VideoStat) []VideoStat {
 	}
 	return bucket
 }
+
+func PrepareStatsBucketWithAverages(bucket []VideoStat) []VideoStat {
+	return prepareStatsForViewing(bucket)
+}
