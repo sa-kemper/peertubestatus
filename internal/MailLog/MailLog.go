@@ -26,12 +26,12 @@ var SmtpConf struct {
 var LogBuffer *bytes.Buffer
 
 func init() {
-	flag.StringVar(&SmtpConf.Host, "smtpHost", "smtp.example.com", "SMTP server host")
+	flag.StringVar(&SmtpConf.Host, "smtpHost", "localhost", "SMTP server host")
 	flag.IntVar(&SmtpConf.Port, "smtpPort", 25, "SMTP server port")
 	flag.StringVar(&SmtpConf.Username, "smtpUsername", "", "SMTP username")
 	flag.StringVar(&SmtpConf.Password, "smtpPassword", "", "SMTP password")
-	flag.StringVar(&SmtpConf.FromAddress, "smtpFromAddress", "peertubestats@example.com", "SMTP from address, will use peertubestats @ smtpHost by default.")
-	flag.StringVar(&SmtpConf.ToAddress, "smtpToAddress", "administrator@example.com", "the recipient list of the administrators EG. Alice <alice@example.com>, Bob <bob@example.com>, Eve <eve@example.com>")
+	flag.StringVar(&SmtpConf.FromAddress, "smtpFromAddress", "peertubestats@localhost", "SMTP from address, will use peertubestats @ smtpHost by default.")
+	flag.StringVar(&SmtpConf.ToAddress, "smtpToAddress", "admin <root@localhost>", "the recipient list of the administrators EG. Alice <alice@example.com>, Bob <bob@example.com>, Eve <eve@example.com>")
 	LogBuffer = new(bytes.Buffer)
 }
 
