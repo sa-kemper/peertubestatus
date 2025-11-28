@@ -133,6 +133,8 @@ func VideoIndex(writer http.ResponseWriter, request *http.Request) {
 			}
 		}
 	}
+	sort.Slice(Videos, func(i, j int) bool { return Videos[i].Views > Videos[j].Views })
+
 	var summaryBucket []StatsIO.VideoStat
 	for _, video := range Videos {
 		currentBucket, err := StatsIO.ExportStats(video.ID, FrontPageForm.Dates, FrontPageForm.Timeframe)
