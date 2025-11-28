@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/csv"
 	"errors"
 	"net/http"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -74,9 +74,12 @@ func csvDownload(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	writer.Header().Set("Content-Disposition", "attachment; filename=\"stats-from"+time.Now().Format("2006-01-02")+".csv\"")
 	writer.WriteHeader(http.StatusOK)
-	csvWriter := csv.NewWriter(writer)
-	err = csvWriter.WriteAll(data)
-	LogHelp.LogOnError("cannot write csv data", nil, err)
+
+	for _, row := range data {
+		_, err = writer.Write([]byte(strings.Join(row, ";")))
+		_, _ = writer.Write([]byte("\r\n"))
+		LogHelp.LogOnError("cannot write csv data", nil, err)
+	}
 }
 
 func singleVideoPage(writer http.ResponseWriter, request *http.Request) {
