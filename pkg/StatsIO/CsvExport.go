@@ -65,7 +65,9 @@ func CsvGenerate(parameters CsvGenerateParameters) (csvData [][]string) {
 		}
 		// insert the stats data
 		csvData[iterator] = append(csvData[iterator], statStringSlice...)
+		csvData[iterator] = append(csvData[iterator], vid.Name)
 
 	}
+	csvData[0] = append(csvData[0], Translate("Video Name"))
 	return csvData
 }
