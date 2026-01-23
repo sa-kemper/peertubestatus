@@ -8,6 +8,7 @@ import (
 )
 
 func ExportStats(videoID int64, Dates Timeframe, Timeframe string) (Bucket []VideoStat, err error) {
+	// Cache this functions return. Note: but it runs so fast with the time seriesDB that it doesnt really matter
 	var dateVals = []int{0, 0, 0}
 	if Timeframe != "Daily" && Timeframe != "Monthly" && Timeframe != "Yearly" {
 		Timeframe = "Daily"
@@ -68,6 +69,9 @@ func prepareStatsForViewing(bucket []VideoStat) []VideoStat {
 		ViewsSmallest = min(ViewsSmallest, stat.Views.Data)
 		ViewsBiggest = max(ViewsBiggest, stat.Views.Data)
 	}
+	// Shift the stats max up, this results in a top-padding in the chart.
+	ViewsBiggest += 15
+	LikesBiggest += 15
 
 	for i, stat := range bucket {
 		likesCurrentPercent := float64(stat.Likes.Data) / max(float64(1), float64(LikesBiggest))
