@@ -4,6 +4,30 @@ This is a simple golang webserver that localizes it's pages to the requested lan
 peertubestats is a program written in golang. It obtains statistics from a running peertube instance, and saves them in a raw format, so that any bugs that this program has are not affecting the data collected. The collected data is added to the custom save strategy. The custom strategy invovles the metadata of every video, mapped from video id to data. The other data saved is frequently updated data such as views and likes. This frequently changing data is saved in a double linked list format, where the key is the date of the data. by moving down the linked list you can obtain more current data. There is no duplicate data in this double linked list, it only tracks changes of the data. Each video gets its own file, and the stats are tracked separately, this allows this program too scale to millions of videos. 
 
 The scope of this project was to obtain stats and provide a static site for the obtained stats, however due to usability concerns we expanded the logic with a small backend.
+
+Data folder overview:
+``` 
+.
+├── 2025 # year.json
+│   ├── 01 # month.json
+│   ├── 02
+│   ├── 03
+│   └── 04
+├── 2025.json # year summary (year.josn)
+├── deleted.json # deleted video metadata
+├── lazy-static # static video metadata
+│   └── thumbnails # video thumbnails
+│       ├── 0d0022c4-5182-4d8f-9cd4-5d6d7ecf7f17.jpg # image example
+│       ├── amsjjssd-5182-4d8f-9cd4-5d6d7ecf7f17.jpg # uuid.json
+│       └── sdawwwrt-5182-4d8f-9cd4-5d6d7ecf7f17.jpg
+├── TimeSeries # the Double linked list for each video
+│   ├── 1.json # A samle double linked list file
+│   ├── 2.json # id.json
+│   └── 3.json
+├── TimeSeriesDB.json # A list holding the info on which video id's are in the TimeSeriesDB.json
+└── videoDB.json # a map from id to metadata for each video
+```
+
 # Installation
 To install the service, just compile the binaries and run them to your liking. However, there are a few convenience options available.
 ## Compilation:
