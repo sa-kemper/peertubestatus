@@ -4,6 +4,17 @@ This is a simple golang webserver that localizes it's pages to the requested lan
 peertubestats is a program written in golang. It obtains statistics from a running peertube instance, and saves them in a raw format, so that any bugs that this program has are not affecting the data collected. The collected data is added to the custom save strategy. The custom strategy invovles the metadata of every video, mapped from video id to data. The other data saved is frequently updated data such as views and likes. This frequently changing data is saved in a double linked list format, where the key is the date of the data. by moving down the linked list you can obtain more current data. There is no duplicate data in this double linked list, it only tracks changes of the data. Each video gets its own file, and the stats are tracked separately, this allows this program too scale to millions of videos. 
 
 The scope of this project was to obtain stats and provide a static site for the obtained stats, however due to usability concerns we expanded the logic with a small backend.
+# Installation
+To install the service, just compile the binaries and run them to your liking. However, there are a few convenience options available.
+## Compilation:
+We assume you use a posix compliant operating system, you have cloned the source code to a directory of your choosing and have golang 1.25.2 installed.
+
+There are no required build flags, however there is no need for a lot of debug information in production, the following commands will build all executables in our suggested way:
+```shell
+go build -ldflags="-s -w" ./cmd/CronSaveStats # A utility used as a cron service to save the current peertube data.
+go build -ldflags="-s -w" ./cmd/peertubeExportStat # A utility for generating a report of every video into a static html files.
+go build -ldflags="-s -w" ./cmd/peertubestats # A statistics go http server with search and interactivity. Should be used in combination with CronSaveStats 
+```
 
 Neither the peertubeExportStat nor the peertubestats http service obtain any data from the peertube instance. use the CronSaveStats utility for that. `NOTE: A restart of the peertubestats application should be done so the data is reloaded. A simple solution for this is a cronjob that restarts the unit.`
 
