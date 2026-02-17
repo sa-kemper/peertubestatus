@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+// GetThumbnail is a utility function that calls GetVideoMetadata and obtains the provided thumbnail from that response
+// GetThumbnail takes the video id on peertube
 func (api *ApiClient) GetThumbnail(id int64) (thumbnailData []byte, err error) {
 	var buffer bytes.Buffer
 	videoMetadata, err := api.GetVideoMetadata(strconv.FormatInt(id, 10))

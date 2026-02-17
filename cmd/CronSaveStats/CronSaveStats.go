@@ -20,6 +20,7 @@ var apiConfig struct {
 	Protocol     string `json:"protocol"`
 }
 
+// TestMail specifies if the program should just test the mail sending process and quit
 var TestMail bool
 
 func init() {

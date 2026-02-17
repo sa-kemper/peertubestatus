@@ -10,7 +10,6 @@ import (
 var ErrorNoMoreResults = errors.New("no more results")
 
 func (api *ApiClient) ListVideosRaw(args ListVideosParams) (data []byte, err error) {
-
 	const endpoint = "videos"
 	_, err = ValidateVideoIncludeFlags(args.Include, api.isAdmin)
 	if err != nil {

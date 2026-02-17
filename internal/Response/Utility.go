@@ -20,6 +20,7 @@ type Utility struct {
 	Template *template.Template
 }
 
+// ParseConfigFromEnvFile looks for a .env file in the current work directory, parses it and sets each flag.Flag that is available **and is unset**!
 func ParseConfigFromEnvFile() (err error) {
 
 	envBytes, err := os.ReadFile(".env")
@@ -44,6 +45,7 @@ func ParseConfigFromEnvFile() (err error) {
 	return err
 }
 
+// ParseConfigFromEnvironment looks for configuration options in the environment and overwrites each flag.Flag to the corresponding value
 func ParseConfigFromEnvironment() (err error) {
 	flag.VisitAll(func(f *flag.Flag) {
 		if val, found := os.LookupEnv(f.Name); found {
@@ -110,6 +112,7 @@ func extractValFromEnvBytes(bytes []byte, name string) string {
 	return ""
 }
 
+// ParseLanguage accepts the Accept-Language header from an http request and resolves the best available language for the user.
 func ParseLanguage(lang string) (resolvedLang string, err error) {
 	tag, _, err := language.ParseAcceptLanguage(lang)
 	LogHelp.LogOnError("Parsing Accept-Language Http Header failed", map[string]string{"Accept-Language": lang}, err)

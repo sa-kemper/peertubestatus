@@ -35,6 +35,9 @@ func init() {
 	LogBuffer = new(bytes.Buffer)
 }
 
+// SendPanic is a function that is called when peertubestats is in distress, something extremely unexpected happen and the archival features of peertubestats cannot be guaranteed
+// it takes a mail.PanicMail struct to deliver the mail, and may error, this should be handled using a file
+// NOTE: maybe implement a warning in the frontend when this occurs and or fails
 func SendPanic(panicMail mail.PanicMail) (err error) {
 	println("[PANIC] panicMail being sent")
 	// Send to
@@ -72,6 +75,8 @@ func SendPanic(panicMail mail.PanicMail) (err error) {
 	return err
 }
 
+// SendMailOnFatalLog reads the log type of each log message and sends a panic mail when a fatal log message was recorded.
+// this records and sends along the entire log of the application, this may cause higher memory use
 func SendMailOnFatalLog() {
 	var err error
 	for LogBuffer == nil {
@@ -86,14 +91,14 @@ func SendMailOnFatalLog() {
 			err = nil
 			counter := 0
 			err = SendPanic(mail.PanicMail{
-				IncidentTimestamp: int(time.Now().Unix()),
+				IncidentTimestamp: strconv.Itoa(int(time.Now().Unix())),
 				ErrorMessage:      "A Fatal error has occurred",
 				ErrorDetails:      LogBuffer.String(),
 			})
 			for err != nil && counter < 10 {
 				// send until success
 				err = SendPanic(mail.PanicMail{
-					IncidentTimestamp: int(time.Now().Unix()),
+					IncidentTimestamp: strconv.Itoa(int(time.Now().Unix())),
 					ErrorMessage:      "A Fatal error has occurred",
 					ErrorDetails:      LogBuffer.String(),
 				})

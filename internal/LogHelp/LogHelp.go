@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// AlwaysQueue Is a flag to be set if a alternative log delivery system shall be used.
+// AlwaysQueue Is a flag to be set if an alternative log delivery system shall be used.
 var AlwaysQueue = false
 var AlternativeWriter io.Writer // TODO: Re implement, has no use.
 var PrintableLogLevel LogLevelID
@@ -67,6 +67,7 @@ func (e LogEntry) String() string {
 	return string(str)
 }
 
+// Log is the function to print the log to the selected channel. it abstracts handling the implementation allowing us to log to basically anything.
 func (e LogEntry) Log() {
 	if AlternativeWriter != nil {
 		written, err := io.WriteString(AlternativeWriter, e.String())
@@ -111,6 +112,7 @@ const (
 // The LogQueue is used for potential different log delivery systems (stdout, stderr, webhook, telegram etc).
 var LogQueue = make(chan *LogEntry, 100)
 
+// NewLog Creates a logging object, it sends it into a LogQueue channel if configured.
 func NewLog(id LogLevelID, msg string, ctx interface{}) *LogEntry {
 	le := &LogEntry{
 		LogTime:     time.Now(),
@@ -125,6 +127,7 @@ func NewLog(id LogLevelID, msg string, ctx interface{}) *LogEntry {
 	return le
 }
 
+// LogOnError logs an error if it occurred.
 func LogOnError(msg string, ctx interface{}, err error) {
 	if err == nil {
 		return
@@ -136,6 +139,7 @@ func LogOnError(msg string, ctx interface{}, err error) {
 	NewLog(Error, msg, map[string]interface{}{"context": ctx, "error": err.Error()}).Log()
 }
 
+// FatalOnError panics the program if this is handled
 func FatalOnError(msg string, ctx interface{}, err error) {
 	if err == nil {
 		return

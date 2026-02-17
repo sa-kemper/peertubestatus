@@ -1,7 +1,7 @@
 /go.sum
 /i18n/locales/*.mo
 /.env
-/en.pot
+/i18n/locales/en.pot
 /Reports/*
 /Data/*
 /CronSaveStats

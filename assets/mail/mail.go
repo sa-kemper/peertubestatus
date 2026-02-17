@@ -7,12 +7,18 @@ import (
 	"text/template"
 )
 
+// PanicMail is a struct representing an email sent when the program is in distress and CANNOT finish the task
+// it requires 3 parameters
+// IncidentTimestamp the formatted time struct.
+// ErrorMessage The error that caused the panic state.
+// ErrorDetails The description of the error and the details to it occurring.
 type PanicMail struct {
-	IncidentTimestamp int
+	IncidentTimestamp string
 	ErrorMessage      string
 	ErrorDetails      string
 }
 
+// InfoMail is a struct representing an email sent when the program notifies the administrator of an occurrence
 type InfoMail struct {
 	IncidentTimestamp string
 	Message           string

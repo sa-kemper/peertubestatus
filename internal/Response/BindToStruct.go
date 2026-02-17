@@ -10,6 +10,13 @@ import (
 	"time"
 )
 
+// BindToStruct gets the form tag from structs, retrieves the *http.Request values and sets the values from the struct according to the request
+// This is used to parse http requests to a generic endpoint and its specification
+// Example:
+//
+// var endpoint = struct{age int `form:user_age`}
+// err := BindToStruct(request, &endpoint)
+// // endpoint will now contain the provided age
 func BindToStruct(r *http.Request, dest interface{}) error {
 	v := reflect.ValueOf(dest)
 
