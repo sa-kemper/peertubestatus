@@ -144,7 +144,7 @@ func main() {
 	translatedFunctions := maps.Clone(web.TemplateFunctions)
 	translatedFunctions["translate"] = func(text string) string {
 		lang := i18n.Languages[Config.OutputLanguage]
-		return lang.Get(text)
+		return lang.Get("%s", text)
 	}
 
 	LocalErr = TranslatedTemplate.Funcs(translatedFunctions).ExecuteTemplate(fileHandler, "reportIndex", map[string]interface{}{"Videos": videos})

@@ -102,8 +102,7 @@ func main() {
 		print("\nListening on http://" + config.BindAddress + ":" + strconv.Itoa(config.HttpPort) + "\n")
 	}
 
-	s := *http1Server
-	err = s.ListenAndServe()
+	err = http1Server.ListenAndServe()
 	LogHelp.LogOnError("Cannot accept https connection", nil, err)
 	select {}
 }

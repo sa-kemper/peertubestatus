@@ -19,7 +19,7 @@ func (u *Utility) ReplyTemplate(writer http.ResponseWriter, request *http.Reques
 	templateFunctionsCopy := maps.Clone(web.TemplateFunctions)
 	templateFunctionsCopy["translate"] = func(text string) string {
 		lang := i18n.Languages[AcceptLanguage]
-		return lang.Get(text)
+		return lang.Get("%s", text)
 	}
 
 	TranslatedTemplate, err := u.Template.Clone()
@@ -57,7 +57,7 @@ func (u *Utility) ReplyTemplateWithData(writer http.ResponseWriter, request *htt
 	templateFunctionsCopy := maps.Clone(web.TemplateFunctions)
 	templateFunctionsCopy["translate"] = func(text string) string {
 		lang := i18n.Languages[AcceptLanguage]
-		return lang.Get(text)
+		return lang.Get("%s", text)
 	}
 
 	TranslatedTemplate := u.Template.Funcs(templateFunctionsCopy)
