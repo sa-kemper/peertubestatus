@@ -1,6 +1,14 @@
 # peertubestats
 peertubestats is a program written in golang. It obtains statistics from a running peertube instance, and saves them in a raw format, so that any bugs that this program has are not affecting the data collected. The collected data is added to the custom save strategy. The custom strategy invovles the metadata of every video, mapped from video id to data. The other data saved is frequently updated data such as views and likes. This frequently changing data is saved in a double linked list format, where the key is the date of the data's collection. by moving down the linked list you can obtain more current data. There is no duplicate data in this double linked list, it only tracks changes of the data. Each video gets its own file, and the stats are tracked separately, this allows this program too scale to millions of videos. 
 
+---
+
+![GitHub License](https://img.shields.io/github/license/sa-kemper/peertubestats?style=for-the-badge)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sa-kemper/peertubestats/StaticAnalisys.yml?style=for-the-badge)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/sa-kemper/peertubestats?style=for-the-badge)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/sa-kemper/peertubestats?style=for-the-badge)
+
+
 The scope of this project was to obtain stats and provide a static site for the obtained stats, however due to usability concerns we expanded the logic with a small backend.
 peertubestats can still be used as a static site generator even if it is capable of much more.
 
