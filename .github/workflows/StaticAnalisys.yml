@@ -7,14 +7,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest" ]
+        os: [ "windows-latest", "ubuntu-latest", "macOS-latest" ]
         go: [ "1.25.x" ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - uses: text-adi/build-language-i18n-action@v1
+      - uses: text-adi/build-language-i18n-action@v2
         env:
           DIR: i18n/locales/
 
